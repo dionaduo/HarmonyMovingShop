@@ -2,7 +2,7 @@ import { GoodsItem } from "../goods/goods";
 import { Banner, Brand, Channel, Coupon, Floor, Groupon, Topic } from "./IHomeData";
 
 export interface HomePageData{
-  banners:  Banner[];
+  banner:  Banner[];
   brands:  Brand[];
   channels:  Channel[];
   coupons:  Coupon[];
@@ -12,5 +12,3 @@ export interface HomePageData{
   newGoods: GoodsItem[];
   topics:  Topic[];
 }
-
-

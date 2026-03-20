@@ -3,6 +3,7 @@ import { window } from '@kit.ArkUI';
 import { tabBarComponent } from '../component/common/tabBarComponent';
 import { getCategory, getCurrentCategory, getSubCategoryDetail, getSubCategoryGoods } from '../api/category/catalog';
 import { getGoodsDetail } from '../api/goods';
+import { HomeBuilder } from '../component/common/HomeBuilder';
 
 
 @Entry
@@ -18,9 +19,7 @@ struct Index {
 
   @Builder
   homeBuilder() {
-    Column() {
-      Text('精选页面内容')
-    }.width('100%').height('100%')
+    HomeBuilder()
   }
 
   @Builder
@@ -54,6 +53,8 @@ struct Index {
         moreContent: this.moreBuilder
       })
         .onClick(async ()=>{
+          const res = await getHomeData()
+          console.log(JSON.stringify(res.data.banner))
           //分类的数据
           // const res = await getCategory();
           // console.log(JSON.stringify(res.data.currentCategory))
