@@ -1,8 +1,19 @@
+import { getHomeData } from '../api/home';
+import { window } from '@kit.ArkUI';
+
 interface ITitle { title: string;color: Color; }
 
 @Entry
 @Component
 struct Index {
+  aboutToAppear(): void {
+    window.getLastWindow(this.getUIContext().getHostContext()).then((win)=>{
+      win.setWindowLayoutFullScreen(true).catch((err:string)=>{
+        console.log(err)
+      })
+    })
+  }
+
   @State curTabIndex:number = 0
   @State currTabImage:Resource[] =[
     $r('app.media.MF'),
@@ -21,7 +32,7 @@ struct Index {
     Column(){
       Image(index == this.curTabIndex ? selectedIcon : icon).width(20)
       Divider().width(35).strokeWidth(3).margin({ top: 3, bottom: 3 }).backgroundColor(index == this.curTabIndex ? Color.Red : Color.Transparent)
-      Text(title).fontSize(20).fontColor(index == this.curTabIndex ? Color.Red : Color.Black)
+      Text(title).fontSize(16).fontColor(index == this.curTabIndex ? Color.Red : Color.Black).padding({bottom:30})
     }
   }
 
@@ -30,7 +41,7 @@ struct Index {
       Tabs(){
         ForEach(this.titleList,(item:ITitle, index:number) => {
           TabContent() {
-            Text(item.title).fontSize(30).fontColor(item.color)
+            Text(item.title).fontSize(22).fontColor(item.color)
           }.tabBar(this.tabItem(index, item.title, this.currTabImage[index], this.currTabImage[4]))
         })
 
