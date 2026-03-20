@@ -27,9 +27,9 @@ export struct HomeBuilder {
         Row() {
           Text('Home').fontSize(30).fontColor('#ff000000')
           List(){
-            ForEach(this.bannerImage, (item:Resource, index) => {
+            ForEach(this.bannerImage, (item:Banner, index) => {
               ListItem(){
-                Image(item).width('100%').height('150').objectFit(ImageFit.Contain)
+                Image(item.url).width('100%').height('150').objectFit(ImageFit.Contain)
               }
             })
           }
