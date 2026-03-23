@@ -25,13 +25,13 @@ export struct tabBarComponent {
   @Builder
   tabItem(index: number, title: string, icon: Resource, selectedIcon: Resource) {
     Column() {
-      Image(index == this.curTabIndex ? selectedIcon : icon).width(20)
+      Image(index == this.curTabIndex ? selectedIcon : icon).width(16)
       Divider()
         .width(35)
         .strokeWidth(3)
         .margin({ top: 3, bottom: 3 })
         .backgroundColor(index == this.curTabIndex ? Color.Red : Color.Transparent)
-      Text(title).fontSize(16).fontColor(index == this.curTabIndex ? Color.Red : Color.Black).padding({ bottom: 30 })
+      Text(title).fontSize(14).fontColor(index == this.curTabIndex ? Color.Red : Color.Black).padding({ bottom: 30 })
     }
   }
 

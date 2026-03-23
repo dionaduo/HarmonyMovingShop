@@ -3,9 +3,10 @@ import { window } from '@kit.ArkUI';
 import { tabBarComponent } from '../component/common/tabBarComponent';
 import { getCategory, getCurrentCategory, getSubCategoryDetail, getSubCategoryGoods } from '../api/category/catalog';
 import { getGoodsDetail } from '../api/goods';
-import { HomeBuilder } from '../component/common/HomeBuilder';
-import { ChannelBar } from '../component/common/ChannelBar';
-import { CouponBar } from '../component/common/CouponBar';
+import { HomeBuilder } from '../component/home/HomeBuilder';
+import { ChannelBar } from '../component/home/ChannelBar';
+import { CouponBar } from '../component/home/CouponBar';
+import { GrouponBar } from '../component/home/GrouponBar';
 
 
 @Entry
@@ -21,11 +22,15 @@ struct Index {
 
   @Builder
   homeBuilder() {
-    Column(){
-      HomeBuilder()
-      ChannelBar()
-      CouponBar()
+    Scroll(){
+      Column(){
+        HomeBuilder()
+        ChannelBar()
+        CouponBar()
+        GrouponBar()
+      }
     }
+    .scrollBar(BarState.Off)
     .width('100%')
     .height('100%')
   }
@@ -84,7 +89,6 @@ struct Index {
           // console.log(JSON.stringify(goodsData.data))
         })
     }
-    .backgroundColor('#ffd9d9d9')
     .height('100%')
     .width('100%')
   }

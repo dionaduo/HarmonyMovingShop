@@ -51,6 +51,6 @@ export struct CouponBar {
         .height(80)
         .padding(5)
       })
-    }.width('100%').backgroundColor('#ffe2e2de').padding({ left: 10, right: 10 })
+    }.width('100%').padding({ left: 10, right: 10 })
   }
 }

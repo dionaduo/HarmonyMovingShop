@@ -1,6 +1,6 @@
 import { getHomeData } from "../../api/home"
 import { Banner } from "../../viewModel/home/IHomeData"
-import { searchBar } from "./searchBar"
+import { searchBar } from "../common/searchBar"
 import { window } from "@kit.ArkUI"
 
 @Component
@@ -44,7 +44,7 @@ export struct HomeBuilder {
           .width('100%')
         }.justifyContent(FlexAlign.Center).width('100%')
       }
-    }.width('100%').backgroundColor('#ffe2e2de').padding({ left: 10, right: 10 })
+    }.width('100%').padding({ left: 10, right: 10 })
 
   }
 }
