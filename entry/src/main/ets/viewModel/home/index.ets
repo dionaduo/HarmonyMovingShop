@@ -3,12 +3,12 @@ import { Banner, Brand, Channel, Coupon, Floor, Groupon, Topic } from "./IHomeDa
 
 export interface HomePageData{
   banner:  Banner[];
-  brands:  Brand[];
-  channels:  Channel[];
-  coupons:  Coupon[];
-  floors:  Floor[];
-  groupons:  Groupon[];
-  hotGoods: GoodsItem[];
-  newGoods: GoodsItem[];
-  topics:  Topic[];
+  brandList:  Brand[];
+  channel:  Channel[];
+  couponList:  Coupon[];
+  floorGoodsList:  Floor[];
+  grouponList:  Groupon[];
+  hotGoodsList: GoodsItem[];
+  newGoodsList: GoodsItem[];
+  topicList:  Topic[];
 }

@@ -1,5 +1,7 @@
 import { getHomeData } from "../../api/home"
 import { Banner } from "../../viewModel/home/IHomeData"
+import { searchBar } from "./searchBar"
+import { window } from "@kit.ArkUI"
 
 @Component
 export struct HomeBuilder {
@@ -7,6 +9,11 @@ export struct HomeBuilder {
 
   aboutToAppear(): void {
     this.getBannerImage()
+    window.getLastWindow(this.getUIContext().getHostContext()).then((win) => {
+      win.setWindowLayoutFullScreen(true).catch((err: string) => {
+        console.log(err)
+      })
+    })
   }
   private async getBannerImage(){
     try {
@@ -21,25 +28,23 @@ export struct HomeBuilder {
   build() {
     Column(){
       Row(){
-        Search()
-      }.width('100%').height('10%').backgroundColor(Color.Orange)
+        searchBar()
+      }.width('100%').height('10%')
       Scroll(){
         Row() {
-          Text('Home').fontSize(30).fontColor('#ff000000')
-          List(){
+          Swiper(){
             ForEach(this.bannerImage, (item:Banner, index) => {
-              ListItem(){
                 Image(item.url).width('100%').height('150').objectFit(ImageFit.Contain)
-              }
             })
           }
-          .scrollBar(BarState.Off)
+          .loop(true)
+          .autoPlay(true)
+          .interval(1000)
           .height(200)
           .width('100%')
-          .padding({ left: 15, right: 15 })
-          .listDirection(Axis.Horizontal)
         }.justifyContent(FlexAlign.Center).width('100%')
       }
-    }.width('100%').width('100%').backgroundColor('#ffe2e2de')
+    }.width('100%').backgroundColor('#ffe2e2de').padding({ left: 10, right: 10 })
+
   }
 }

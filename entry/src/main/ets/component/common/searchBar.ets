@@ -1,8 +1,7 @@
 import { window } from '@kit.ArkUI'
 
-@Entry
 @Component
-struct searchBar {
+export struct searchBar {
   aboutToAppear(): void {
     window.getLastWindow(this.getUIContext().getHostContext()).then((win) => {
       win.setWindowLayoutFullScreen(true).catch((err: string) => {
@@ -12,7 +11,7 @@ struct searchBar {
   }
   build() {
     Column(){
-      Search().width('80%').height(40).backgroundColor(Color.Gray)
+      Search().width('90%').height(40)
     }.width('100%')
   }
 }
