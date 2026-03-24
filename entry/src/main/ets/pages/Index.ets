@@ -7,6 +7,8 @@ import { HomeBuilder } from '../component/home/HomeBuilder';
 import { ChannelBar } from '../component/home/ChannelBar';
 import { CouponBar } from '../component/home/CouponBar';
 import { GrouponBar } from '../component/home/GrouponBar';
+import { BrandBar } from '../component/home/BrandBar';
+import { NewGoodsBar } from '../component/home/NewGoodsBar';
 
 
 @Entry
@@ -28,6 +30,8 @@ struct Index {
         ChannelBar()
         CouponBar()
         GrouponBar()
+        BrandBar()
+        NewGoodsBar()
       }
     }
     .scrollBar(BarState.Off)
