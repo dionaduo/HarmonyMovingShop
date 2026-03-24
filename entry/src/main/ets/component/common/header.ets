@@ -1,7 +1,7 @@
 @Component
 export struct header {
-  @State head:string =''
-  @State moreHead:string =''
+  @Prop head:string =''
+  @Prop moreHead:string =''
 
   build() {
     Row() {
@@ -20,6 +20,8 @@ export struct header {
             .padding({ bottom: 1 })
         }
       }
-    }.width('100%').height(18).justifyContent(FlexAlign.SpaceBetween)
+    }.width('100%').height(20)
+    .justifyContent(FlexAlign.SpaceBetween)
+    .padding({bottom:5,top:5})
   }
 }

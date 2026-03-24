@@ -46,7 +46,7 @@ export struct NewGoodsBar {
                 .fontSize(12)
                 .fontColor(Color.Black)
                 .fontWeight('bold')
-              Text('$'+item.retailPrice)
+              Text('$ '+item.retailPrice)
                 .fontSize(10)
                 .padding(2)
                 .fontColor(Color.Red)
@@ -58,12 +58,13 @@ export struct NewGoodsBar {
               style: BorderStyle.Solid,
               color: Color.Gray
             })
+            .borderRadius(5)
           }
         })
       }.rowsGap(3)
       .columnsGap(3)
       .width('100%')
-      .height(380)
+      .height(420)
       .rowsTemplate('repeat(3,1fr)')
       .columnsTemplate('repeat(2, 1fr)')
     }.width('100%')

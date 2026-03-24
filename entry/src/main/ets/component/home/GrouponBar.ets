@@ -95,7 +95,7 @@ export struct GrouponBar {
 
     .width('100%')
     .padding(8)
-    .border({ width: 1, color: Color.Red, radius: 8 })
+    .border({ width: 1, color: Color.Gray, radius: 8 })
     .backgroundColor(Color.White)
   }
 

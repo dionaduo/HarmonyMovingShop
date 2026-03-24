@@ -1,5 +1,5 @@
+// BrandBar.ets
 import { header } from '../common/header'
-import { window } from '@kit.ArkUI'
 import { Brand } from '../../viewModel/home/IHomeData'
 import { getHomeData } from '../../api/home'
 
@@ -8,52 +8,61 @@ export struct BrandBar {
   @State brand: Array<Brand> = []
 
   aboutToAppear(): void {
-    this.getCoupon()
-    window.getLastWindow(this.getUIContext().getHostContext()).then((win) => {
-      win.setWindowLayoutFullScreen(true).catch((err: string) => {
-        console.log(err)
-      })
-    })
+    this.loadBrandData()
   }
 
-  private async getCoupon() {
+  private async loadBrandData() {
     try {
       const res = await getHomeData()
-      this.brand = res.data.brandList
-      console.log(JSON.stringify(this.brand))
+      this.brand = res.data?.brandList || []
     } catch (err) {
-      console.error(err)
+      console.error('加载品牌数据失败:', err)
     }
   }
 
   build() {
-    Column(){
+    Column() {
+      // 头部标题
       header({
         head: '品牌商直供',
-        moreHead:'更多品牌商'
+        moreHead: '更多品牌商'
       })
-      Grid(){
-        ForEach(this.brand,(item:Brand,index:number)=>{
-          GridItem(){
-            Column(){
+
+      // 品牌网格
+      Grid() {
+        ForEach(this.brand, (item: Brand) => {
+          GridItem() {
+            Column() { // 图片和文字间距
               Image(item.picUrl)
-              .objectFit(ImageFit.Contain)
-              .borderRadius(10)
+                .width(130)
+                .height(80)
+                .objectFit(ImageFit.Contain)
+                .borderRadius(5)
+
               Text(item.name)
-              .fontSize(12)
-              .fontColor(Color.Black)
-              .fontWeight('bold')
+                .fontSize(13)
+                .fontColor(Color.Black)
+                .fontWeight(FontWeight.Medium)
+                .maxLines(1)
             }
+            .width('100%')
+            .padding(5)
+            .border({
+              width: 1,
+              color: Color.Gray,
+              radius: 5
+            })
+            .backgroundColor(Color.White)
           }
         })
       }
-      .columnsGap(3)
-      .rowsGap(3)
+      .columnsGap(2)
       .width('100%')
-      .height(300)
+      .height(220) // 适当调小，避免过高
       .rowsTemplate('repeat(2, 1fr)')
       .columnsTemplate('repeat(2, 1fr)')
-    }.width('100%')
+    }
+    .width('100%')
     .padding(10)
   }
 }
