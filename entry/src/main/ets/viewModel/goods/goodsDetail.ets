@@ -1,4 +1,4 @@
-// types/goodsDetail.ets
+import { Groupon } from "../home/IHomeData";
 
 // 商品规格项的值
 export interface SpecificationValue {
@@ -28,21 +28,58 @@ export interface Issue {
   deleted: boolean;
 }
 
-// 商品属性参数（材质、克重、填充物等）
+// 商品属性参数（规格、重要提醒等）
 export interface Attribute {
   id: number;
   goodsId: number;
-  attribute: string; // 属性名，如 "材质"、"填充"
+  attribute: string; // 属性名，如 "规格"、"重要提醒"
   value: string; // 属性值
   addTime: string;
   updateTime: string;
   deleted: boolean;
 }
 
-// 评论概览（当前数据中为空数组，但保留结构）
-export interface CommentSummary {
-  data: never[]; // 当前接口返回空数组，暂不定义具体评论项类型
+// 评论条目
+export interface CommentItem {
+  addTime: string;
+  picList: string[];
+  adminContent: string;
+  nickname: string;
+  id: number;
+  avatar: string;
+  content: string;
+}
+
+// 评论数据
+export interface CommentData {
+  data: CommentItem[];
   count: number;
+}
+
+// 品牌信息
+export interface Brand {
+  id: number;
+  name: string;
+  desc: string;
+  picUrl: string;
+  sortOrder: number;
+  floorPrice: number;
+  addTime: string;
+  updateTime: string;
+  deleted: boolean;
+}
+
+// 商品规格组合（SKU）
+export interface Product {
+  id: number;
+  goodsId: number;
+  specifications: string[]; // [规格值, 颜色值]
+  price: number;
+  number: number; // 库存数量
+  url: string;
+  addTime: string;
+  updateTime: string;
+  deleted: boolean;
 }
 
 // 商品基本信息（info 对象）
@@ -52,9 +89,9 @@ export interface GoodsInfo {
   goodsSn: string;
   categoryId: number;
   brandId: number;
-  goodsNumber: number;
+  gallery: string[]; // 商品轮播图
   keywords: string;
-  brief: string;
+  brief: string; // 商品简介
   isOnSale: boolean;
   sortOrder: number;
   picUrl: string; // 主图
@@ -79,7 +116,7 @@ export interface GoodsDetailData {
   specificationList: SpecificationGroup[];
 
   // 团购信息（当前数据中为空数组）
-  groupon: never[]; // 暂为空，未来可扩展 Groupon 类型
+  groupon: Groupon[];
 
   // 常见问题列表
   issue: Issue[];
@@ -90,14 +127,20 @@ export interface GoodsDetailData {
   // 分享图片（当前为空字符串）
   shareImage: string;
 
-  // 是否支持分享（当前为 true）
+  // 是否支持分享
   share: boolean;
 
   // 商品参数属性列表
   attribute: Attribute[];
 
+  // 品牌信息
+  brand: Brand;
+
+  // SKU 列表（规格组合）
+  productList: Product[];
+
   // 评论统计
-  comment: CommentSummary;
+  comment: CommentData;
 }
 
 // 方便组件/页面使用的简写类型
