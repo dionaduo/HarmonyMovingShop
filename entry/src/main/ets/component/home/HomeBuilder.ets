@@ -29,7 +29,7 @@ export struct HomeBuilder {
     Column(){
       Row(){
         searchBar()
-      }.width('100%').height('10%')
+      }.width('100%').height('6%')
       Scroll(){
         Row() {
           Swiper(){

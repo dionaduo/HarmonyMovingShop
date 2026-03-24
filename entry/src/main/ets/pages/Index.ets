@@ -10,6 +10,7 @@ import { GrouponBar } from '../component/home/GrouponBar';
 import { BrandBar } from '../component/home/BrandBar';
 import { NewGoodsBar } from '../component/home/NewGoodsBar';
 import { HotGoodsBar } from '../component/home/HotGoodsBar';
+import { TopicBar } from '../component/home/TopicBar';
 
 
 @Entry
@@ -34,6 +35,7 @@ struct Index {
         BrandBar()
         NewGoodsBar()
         HotGoodsBar()
+        TopicBar()
       }
     }
     .scrollBar(BarState.Off)

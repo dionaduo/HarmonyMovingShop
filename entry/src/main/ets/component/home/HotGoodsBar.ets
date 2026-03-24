@@ -33,6 +33,7 @@ export struct HotGoodsBar{
         head:'人气推荐',
         moreHead:'更多人气推荐'
       })
+
       List(){
         ForEach(this.hotGoods,(item:GoodsItem,index:number)=>{
           ListItem(){
@@ -45,7 +46,9 @@ export struct HotGoodsBar{
             })
           }
         })
-      }.width('100%').height(560).padding({top:3})
+      }
+      .scrollBar(BarState.Off)
+      .width('100%').height(300).padding({top:3})
     }.width('100%').padding(10)
   }
 }

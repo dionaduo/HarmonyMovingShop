@@ -12,7 +12,7 @@ export struct header {
       Column() {
         Row() {
           Text(this.moreHead).fontSize(10).fontColor(Color.Gray)
-            .fontColor(Color.Black)
+            .fontColor(Color.Gray)
             .textAlign(TextAlign.End)
           Image($r('app.media.right_arrow'))
             .width(14)
