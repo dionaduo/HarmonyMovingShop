@@ -1,6 +1,7 @@
 import { getGoodsDetail } from '../../api/goods';
 import { goodsDetail } from '../../component/goods/goodsDetail';
 import { GoodsDetailData } from '../../viewModel/goods/goodsDetail';
+import { window } from '@kit.ArkUI';
 
 @Entry
 @Component
@@ -9,8 +10,11 @@ struct GoodsDetailPage {
   @State detailData: GoodsDetailData = {} as GoodsDetailData;
 
   async aboutToAppear() {
+    window.getLastWindow(this.getUIContext().getHostContext()).then((win)=>{
+      win.setWindowLayoutFullScreen(true)
+    })
     try {
-      const res = await getGoodsDetail(1181000)
+      const res = await getGoodsDetail(this.goodsId)
       this.detailData = res.data
       console.log('这是Page的数据:'+JSON.stringify(this.detailData))
     } catch (err) {
