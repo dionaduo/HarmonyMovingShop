@@ -10,11 +10,6 @@ export struct HomeBuilder {
 
   async aboutToAppear(): Promise<void> {
     this.bannerImage = await loadData(this.bannerImage, 'banner');
-    window.getLastWindow(this.getUIContext().getHostContext()).then((win) => {
-      win.setWindowLayoutFullScreen(true).catch((err: string) => {
-        console.log(err)
-      })
-    })
   }
 
   build() {

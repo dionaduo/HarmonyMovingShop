@@ -9,11 +9,6 @@ export struct NewGoodsBar {
   @State newGoods: Array<GoodsItem> = []
   async aboutToAppear(): Promise<void> {
     this.newGoods = await loadData(this.newGoods, 'newGoodsList');
-    window.getLastWindow(this.getUIContext().getHostContext()).then((win) => {
-      win.setWindowLayoutFullScreen(true).catch((err: string) => {
-        console.log(err)
-      })
-    })
   }
 
   private hotGoodsRouter = this.getUIContext().getRouter()

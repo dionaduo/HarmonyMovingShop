@@ -11,11 +11,6 @@ export struct GrouponBar {
 
   async aboutToAppear(): Promise<void> {
     this.groupon = await loadData(this.groupon, 'grouponList');
-    window.getLastWindow(this.getUIContext().getHostContext()).then((win) => {
-      win.setWindowLayoutFullScreen(true).catch((err: string) => {
-        console.log(err)
-      })
-    })
   }
 
   private hotGoodsRouter = this.getUIContext().getRouter()

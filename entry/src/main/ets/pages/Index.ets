@@ -8,16 +8,11 @@ import { BrandBar } from '../component/home/BrandBar';
 import { NewGoodsBar } from '../component/home/NewGoodsBar';
 import { HotGoodsBar } from '../component/home/HotGoodsBar';
 import { TopicBar } from '../component/home/TopicBar';
+import { categoryBar } from '../component/category/categoryBar';
+
 @Entry
 @Component
 struct Index {
-  aboutToAppear(): void {
-    window.getLastWindow(this.getUIContext().getHostContext()).then((win)=>{
-      win.setWindowLayoutFullScreen(true).catch((err:string)=>{
-        console.log(err)
-      })
-    })
-  }
 
   @Builder
   homeBuilder() {
@@ -38,10 +33,8 @@ struct Index {
     .height('100%')
   }
   @Builder
-  recommendBuilder() {
-    Column() {
-      Text('推荐页面内容')
-    }.width('100%').height('100%')
+  categoryBuilder() {
+    categoryBar()
   }
   @Builder
   favoriteBuilder() {
@@ -61,7 +54,7 @@ struct Index {
     Column() {
       tabBarComponent({
         homeContent: this.homeBuilder,
-        recommendContent: this.recommendBuilder,
+        recommendContent: this.categoryBuilder,
         favoriteContent: this.favoriteBuilder,
         moreContent: this.moreBuilder
       })

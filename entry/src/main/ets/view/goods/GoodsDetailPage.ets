@@ -11,9 +11,6 @@ struct GoodsDetailPage {
   private goodsRouter = this.getUIContext().getRouter()
 
   async aboutToAppear() {
-    window.getLastWindow(this.getUIContext().getHostContext()).then((win)=>{
-      win.setWindowLayoutFullScreen(true)
-    })
     let goodsId = (this.goodsRouter.getParams() as GoodsItem).id
     try {
       const res = await getGoodsDetail(goodsId)

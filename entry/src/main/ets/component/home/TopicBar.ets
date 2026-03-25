@@ -10,11 +10,6 @@ export struct TopicBar {
 
   async aboutToAppear(): Promise<void> {
     this.topic = await loadData(this.topic, 'topicList');
-    window.getLastWindow(this.getUIContext().getHostContext()).then((win) => {
-      win.setWindowLayoutFullScreen(true).catch((err: string) => {
-        console.log(err)
-      })
-    })
   }
   build() {
     Column(){

@@ -9,14 +9,18 @@ import {
 import { header } from '../common/header';
 import { window } from '@kit.ArkUI';
 import { goodsTabBar } from './goodsTabBar';
+import { AttributeDialog } from './AttributeDialog';
 
 @Component
 export struct goodsDetail {
+
   @State detail: GoodsDetailData = {} as GoodsDetailData;
   // 本地状态
   @State quantity: number = 1;
   @State hasCollect: 0 | 1 = 0;
   @State detailImageUrls: string[] = [];
+  //自定义弹窗
+  private attrDialogController: CustomDialogController | null = null
 
   private parseDetailImages(): void {
     if (!this.detail?.info?.detail) {
@@ -45,6 +49,11 @@ export struct goodsDetail {
   async aboutToAppear(): Promise<void> {
     this.hasCollect = this.detail?.userHasCollect ?? 0;
     this.parseDetailImages();
+    this.attrDialogController = new CustomDialogController({
+      builder: AttributeDialog({ attributes: this.detail.attribute }),
+      customStyle: true,
+      alignment: DialogAlignment.Bottom,
+    })
   }
   build() {
     Column() {
@@ -123,32 +132,36 @@ export struct goodsDetail {
                 .width('100%')
                 .padding({ left: 16, right: 16 })
 
-              // 4. 规格/属性/运费选择区
+
+              Row() {
+                header({
+                  head: '规格',
+                  moreHead: '请选择'
+                })
+              }
+              .width('100%')
+              .padding({ left: 20, top: 5, right: 10 })
+              .justifyContent(FlexAlign.SpaceBetween)
+
+              Divider().width('90%').strokeWidth(1)
+
               Column({space:10}) {
-                // 规格
                 Row() {
                   header({
                     head:'属性',
-                    moreHead:'请选择'
+                    moreHead:' '
                   })
                 }
                 .width('100%')
                 .padding({left:20,top:5,right:10})
                 .justifyContent(FlexAlign.SpaceBetween)
+                .onClick(() => {
+                  this.attrDialogController?.open()
+                  console.log('打开弹窗')
+                })
 
                 Divider().width('90%').strokeWidth(1)
 
-                Row() {
-                  header({
-                    head: '规格',
-                    moreHead: '请选择'
-                  })
-                }
-                .width('100%')
-                .padding({left:20,top:5,right:10})
-                .justifyContent(FlexAlign.SpaceBetween)
-
-                Divider().width('90%').strokeWidth(1)
 
                 // 6. 品牌信息
                 if (this.detail.brand != null && this.detail.brand.name != null) {
@@ -211,7 +224,15 @@ export struct goodsDetail {
 
               // 7. 常见问题（保留）
               Row(){
-                header({head:'常见问题',moreHead:'详细查看:'})
+                Button(){
+                  header({ head: '常见问题', moreHead: '详细查看:' })
+                }
+                .backgroundColor(Color.White)
+                .bindMenu([
+                  { value: '选项1', action: () => console.log('选中1') },
+                  { value: '选项2', action: () => console.log('选中2') }
+                ])
+                .width('100%')
               }.padding({ left: 20, right: 10 })
 
               Divider().width('90%').strokeWidth(1)

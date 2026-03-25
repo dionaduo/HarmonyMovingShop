@@ -11,11 +11,6 @@ export struct CouponBar {
 
   async aboutToAppear(): Promise<void> {
     this.coupon = await loadData(this.coupon, 'couponList');
-    window.getLastWindow(this.getUIContext().getHostContext()).then((win) => {
-      win.setWindowLayoutFullScreen(true).catch((err: string) => {
-        console.log(err)
-      })
-    })
   }
 
   build() {

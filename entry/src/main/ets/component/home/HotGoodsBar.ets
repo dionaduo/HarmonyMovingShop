@@ -11,11 +11,6 @@ export struct HotGoodsBar{
 
   async aboutToAppear(): Promise<void> {
     this.hotGoods = await loadData(this.hotGoods, 'hotGoodsList');
-    window.getLastWindow(this.getUIContext().getHostContext()).then((win) => {
-      win.setWindowLayoutFullScreen(true).catch((err: string) => {
-        console.log(err)
-      })
-    })
   }
   private hotGoodsRouter = this.getUIContext().getRouter()
 
