@@ -16,10 +16,10 @@ export struct tabBarComponent {
     $r('app.media.wxts')
   ]
   @State titleList: ITitle[] = [
-    { title: '精选', color: Color.Red },
-    { title: '推荐', color: Color.Blue },
-    { title: '收藏', color: Color.Green },
-    { title: '更多', color: Color.Orange }
+    { title: '首页', color: Color.Red },
+    { title: '分类', color: Color.Blue },
+    { title: '购物车', color: Color.Green },
+    { title: '我的', color: Color.Orange }
   ]
 
   @Builder

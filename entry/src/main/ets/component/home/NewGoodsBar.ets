@@ -2,6 +2,7 @@ import { GoodsItem } from "../../viewModel/goods/goods"
 import { window } from "@kit.ArkUI"
 import { header } from "../common/header"
 import { loadData } from "../../api"
+import { lineGoods } from "../goods/lineGoods"
 
 @Component
 export struct NewGoodsBar {
@@ -15,6 +16,8 @@ export struct NewGoodsBar {
     })
   }
 
+  private hotGoodsRouter = this.getUIContext().getRouter()
+
   build() {
     Column() {
       header({
@@ -24,29 +27,19 @@ export struct NewGoodsBar {
       Grid() {
         ForEach(this.newGoods, (item: GoodsItem, index: number) => {
           GridItem() {
-            Column() {
-              Image(item.picUrl)
-                .objectFit(ImageFit.Contain)
-                .borderRadius(10)
-                .height(100)
-
-              Text(item.name)
-                .fontSize(12)
-                .fontColor(Color.Black)
-                .fontWeight('bold')
-              Text('$ '+item.retailPrice)
-                .fontSize(10)
-                .padding(2)
-                .fontColor(Color.Red)
-            }
-            .width('100%')
-            .height(130)
-            .border({
-              width:1,
-              style: BorderStyle.Solid,
-              color: Color.Gray
+            lineGoods({
+              picUrl:item.picUrl,
+              name:item.name,
+              retailPrice:item.retailPrice
             })
-            .borderRadius(5)
+            .onClick(() => {
+              this.hotGoodsRouter.pushUrl({
+                url: 'view/goods/GoodsDetailPage',
+                params: { id: item.id } as GoodsItem
+              }).catch((err: string) => {
+                console.log('跳转失败,错误信息:' + err)
+              })
+            })
           }
         })
       }.rowsGap(3)

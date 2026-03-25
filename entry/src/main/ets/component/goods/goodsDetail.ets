@@ -12,7 +12,6 @@ import { goodsTabBar } from './goodsTabBar';
 
 @Component
 export struct goodsDetail {
-  // 接收父页面传入的完整商品详情数据（来自goodsDetail.json）
   @State detail: GoodsDetailData = {} as GoodsDetailData;
   // 本地状态
   @State quantity: number = 1;

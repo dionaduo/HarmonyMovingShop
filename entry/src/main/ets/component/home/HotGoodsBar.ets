@@ -1,7 +1,7 @@
 import { GoodsItem } from '../../viewModel/goods/goods'
 import { window } from '@kit.ArkUI'
 import { getHomeData } from '../../api/home'
-import { goods } from '../common/goods'
+import { goods } from '../goods/goods'
 import { header } from '../common/header'
 import { loadData } from '../../api'
 
@@ -17,6 +17,7 @@ export struct HotGoodsBar{
       })
     })
   }
+  private hotGoodsRouter = this.getUIContext().getRouter()
 
 
   build() {
@@ -35,6 +36,13 @@ export struct HotGoodsBar{
               goodsDesc:item.brief,
               goodsCurPrice:item.counterPrice,
               goodsRealPrice:item.retailPrice
+            }).onClick(()=>{
+              this.hotGoodsRouter.pushUrl({
+                url: 'view/goods/GoodsDetailPage',
+                params: { id:item.id } as GoodsItem
+              }).catch((err: string) => {
+                console.log('跳转失败,错误信息:'+ err)
+              })
             })
           }
         })

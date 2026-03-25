@@ -3,6 +3,7 @@ import { window } from '@kit.ArkUI'
 import { getHomeData } from '../../api/home'
 import { header } from '../common/header'
 import { loadData } from '../../api'
+import { GoodsItem } from '../../viewModel/goods/goods'
 
 @Component
 export struct GrouponBar {
@@ -17,15 +18,7 @@ export struct GrouponBar {
     })
   }
 
-  private async getGroupon() {
-    try {
-      const res = await getHomeData()
-      this.groupon = res.data.grouponList
-      console.log(JSON.stringify(this.groupon))
-    } catch (err) {
-      console.error(err)
-    }
-  }
+  private hotGoodsRouter = this.getUIContext().getRouter()
 
   @Builder
   buildGrouponItem(item: Groupon) {
@@ -93,11 +86,18 @@ export struct GrouponBar {
       .justifyContent(FlexAlign.Start)
       .padding(2)
     }
-
     .width('100%')
     .padding(8)
     .border({ width: 1, color: Color.Gray, radius: 8 })
     .backgroundColor(Color.White)
+    .onClick(() => {
+      this.hotGoodsRouter.pushUrl({
+        url: 'view/goods/GoodsDetailPage',
+        params: { id: item.id } as GoodsItem
+      }).catch((err: string) => {
+        console.log('跳转失败,错误信息:' + err)
+      })
+    })
   }
 
   build() {
