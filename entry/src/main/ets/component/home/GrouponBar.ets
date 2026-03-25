@@ -2,13 +2,14 @@ import { Groupon } from '../../viewModel/home/IHomeData'
 import { window } from '@kit.ArkUI'
 import { getHomeData } from '../../api/home'
 import { header } from '../common/header'
+import { loadData } from '../../api'
 
 @Component
 export struct GrouponBar {
   @State groupon: Array<Groupon> = []
 
-  aboutToAppear(): void {
-    this.getGroupon()
+  async aboutToAppear(): Promise<void> {
+    this.groupon = await loadData(this.groupon, 'grouponList');
     window.getLastWindow(this.getUIContext().getHostContext()).then((win) => {
       win.setWindowLayoutFullScreen(true).catch((err: string) => {
         console.log(err)

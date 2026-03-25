@@ -6,3 +6,17 @@ export interface ApiResponse<T> {
 }
 
 export type HomeData = HomePageData;
+
+export function createDefaultHomeData(): HomePageData {
+  return {
+    banner: [],
+    brandList: [],
+    channel: [],
+    couponList: [],
+    floorGoodsList: [],
+    grouponList: [],
+    hotGoodsList: [],
+    newGoodsList: [],
+    topicList: []
+  };
+}

@@ -3,13 +3,14 @@ import { window } from '@kit.ArkUI'
 import { getHomeData } from '../../api/home'
 import { goods } from '../common/goods'
 import { header } from '../common/header'
+import { loadData } from '../../api'
 
 @Component
 export struct HotGoodsBar{
   @State hotGoods: Array<GoodsItem> = []
 
-  aboutToAppear(): void {
-    this.getCoupon()
+  async aboutToAppear(): Promise<void> {
+    this.hotGoods = await loadData(this.hotGoods, 'hotGoodsList');
     window.getLastWindow(this.getUIContext().getHostContext()).then((win) => {
       win.setWindowLayoutFullScreen(true).catch((err: string) => {
         console.log(err)
@@ -17,15 +18,6 @@ export struct HotGoodsBar{
     })
   }
 
-  private async getCoupon() {
-    try {
-      const res = await getHomeData()
-      this.hotGoods = res.data.hotGoodsList
-      console.log(JSON.stringify(this.hotGoods))
-    } catch (err) {
-      console.error(err)
-    }
-  }
 
   build() {
     Column(){

@@ -8,6 +8,7 @@ import {
 } from '../../viewModel/goods/goodsDetail';
 import { header } from '../common/header';
 import { window } from '@kit.ArkUI';
+import { goodsTabBar } from './goodsTabBar';
 
 @Component
 export struct goodsDetail {
@@ -17,15 +18,14 @@ export struct goodsDetail {
   @State quantity: number = 1;
   @State hasCollect: 0 | 1 = 0;
   @State detailImageUrls: string[] = [];
+
   private parseDetailImages(): void {
     if (!this.detail?.info?.detail) {
       this.detailImageUrls = [];
       return;
     }
-
     const html: string = this.detail.info.detail;
     const urls: string[] = [];
-
     // 使用正则表达式匹配 img 标签中的 src 属性
     // 支持单引号、双引号或无引号的情况
     const imgRegex = /<img[^>]+src=["']?([^"'\s>]+)["']?[^>]*>/gi;
@@ -40,6 +40,8 @@ export struct goodsDetail {
 
     this.detailImageUrls = urls;
   }
+
+  private goodsRouter = this.getUIContext().getRouter()
 
   async aboutToAppear(): Promise<void> {
     this.hasCollect = this.detail?.userHasCollect ?? 0;
@@ -60,9 +62,22 @@ export struct goodsDetail {
 
         Stack() {
           Row(){
-            Text('返回').width('100%').height(30).backgroundColor(Color.Gray).onClick(()=>{
+            Row(){
+              Image($r('app.media.right_arrow'))
+                .width(20)
+                .fillColor(Color.White)
+                .padding({left:5,bottom:2})
+              Text('返回')
+                .textAlign(TextAlign.End)
+                .height(30)
+                .padding(5)
+                .onClick(() => {
+                  console.log("点击返回按钮:" + this.goodsRouter.back())
+                  this.goodsRouter.back()
+                })
+            }.width('20%').backgroundColor(Color.Gray)
 
-            })
+            Text().width('80%').height(30).backgroundColor(Color.White)
           }.justifyContent(FlexAlign.Center).position({top:0}).zIndex(999)
           // ==================== 可滚动主内容 ====================
           Scroll() {
@@ -93,7 +108,7 @@ export struct goodsDetail {
                   .fontColor(Color.Gray)
                   .decoration({ type: TextDecorationType.LineThrough })
               }.alignItems(VerticalAlign.Center)
-                .width('100%')
+              .width('100%')
               .padding({ left: 10})
 
               // 3. 商品标题 + 简介（严格匹配截图）
@@ -285,16 +300,11 @@ export struct goodsDetail {
           // ==================== 固定底部操作栏 ====================
           Row() {
             // 可后续替换为真实购买按钮、收藏等
-            Text('这是底部操作栏）')
-              .width('100%')
-              .height(50)
-              .fontColor(Color.White)
-              .fontSize(18)
-              .backgroundColor(Color.Blue)
+            goodsTabBar()
           }
           .height(10)
           .width('100%')
-          .position({bottom:20})
+          .position({bottom:45})
           .zIndex(999)
         }
         .width('100%')

@@ -2,30 +2,20 @@ import { Topic } from "../../viewModel/home/IHomeData"
 import { header } from "../common/header"
 import { window } from "@kit.ArkUI"
 import { getHomeData } from "../../api/home"
+import { loadData } from "../../api"
 
 @Component
 export struct TopicBar {
   @State topic: Array<Topic> = []
 
-  aboutToAppear(): void {
-    this.getTopic()
+  async aboutToAppear(): Promise<void> {
+    this.topic = await loadData(this.topic, 'topicList');
     window.getLastWindow(this.getUIContext().getHostContext()).then((win) => {
       win.setWindowLayoutFullScreen(true).catch((err: string) => {
         console.log(err)
       })
     })
   }
-
-  private async getTopic() {
-    try {
-      const res = await getHomeData()
-      this.topic = res.data.topicList
-      console.log(JSON.stringify(this.topic))
-    } catch (err) {
-      console.error(err)
-    }
-  }
-
   build() {
     Column(){
       header({

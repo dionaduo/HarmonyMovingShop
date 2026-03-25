@@ -2,27 +2,19 @@ import { getHomeData } from "../../api/home"
 import { Banner } from "../../viewModel/home/IHomeData"
 import { searchBar } from "../common/searchBar"
 import { window } from "@kit.ArkUI"
+import { loadData } from "../../api"
 
 @Component
 export struct HomeBuilder {
   @State bannerImage:Array<Banner> = []
 
-  aboutToAppear(): void {
-    this.getBannerImage()
+  async aboutToAppear(): Promise<void> {
+    this.bannerImage = await loadData(this.bannerImage, 'banner');
     window.getLastWindow(this.getUIContext().getHostContext()).then((win) => {
       win.setWindowLayoutFullScreen(true).catch((err: string) => {
         console.log(err)
       })
     })
-  }
-  private async getBannerImage(){
-    try {
-      const res = await getHomeData()
-      this.bannerImage = res.data.banner
-      console.log(JSON.stringify(this.bannerImage))
-    } catch (err) {
-      console.error(err)
-    }
   }
 
   build() {

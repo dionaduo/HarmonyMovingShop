@@ -1,4 +1,5 @@
 import { it } from '@ohos/hypium'
+import { loadData } from '../../api';
 import { getHomeData } from '../../api/home'
 import { Channel } from '../../viewModel/home/IHomeData'
 
@@ -6,18 +7,8 @@ import { Channel } from '../../viewModel/home/IHomeData'
 export struct ChannelBar {
   @State channelImage:  Array<Channel> = []
 
-  aboutToAppear(): void {
-    this.getChannelImage()
-  }
-
-  private async getChannelImage() {
-    try {
-      const res = await getHomeData()
-      this.channelImage = res.data.channel
-      console.log(JSON.stringify(this.channelImage))
-    } catch (err) {
-      console.error(err)
-    }
+  async aboutToAppear(): Promise<void> {
+    this.channelImage = await loadData(this.channelImage, 'channel');
   }
 
   build() {

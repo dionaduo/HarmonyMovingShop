@@ -1,30 +1,18 @@
 import { GoodsItem } from "../../viewModel/goods/goods"
 import { window } from "@kit.ArkUI"
-import { getHomeData } from "../../api/home"
 import { header } from "../common/header"
+import { loadData } from "../../api"
 
 @Component
 export struct NewGoodsBar {
-
   @State newGoods: Array<GoodsItem> = []
-
-  aboutToAppear(): void {
-    this.getNewGoods()
+  async aboutToAppear(): Promise<void> {
+    this.newGoods = await loadData(this.newGoods, 'newGoodsList');
     window.getLastWindow(this.getUIContext().getHostContext()).then((win) => {
       win.setWindowLayoutFullScreen(true).catch((err: string) => {
         console.log(err)
       })
     })
-  }
-
-  private async getNewGoods() {
-    try {
-      const res = await getHomeData()
-      this.newGoods = res.data.newGoodsList
-      console.log(JSON.stringify(this.newGoods))
-    } catch (err) {
-      console.error(err)
-    }
   }
 
   build() {

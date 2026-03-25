@@ -3,28 +3,21 @@ import { window } from '@kit.ArkUI'
 import { getHomeData } from '../../api/home'
 import { it } from '@ohos/hypium'
 import { coupon } from '../common/coupon'
+import { loadData } from '../../api'
 
 @Component
 export struct CouponBar {
   @State coupon: Array<Coupon> = []
 
-  aboutToAppear(): void {
-    this.getCoupon()
+  async aboutToAppear(): Promise<void> {
+    this.coupon = await loadData(this.coupon, 'couponList');
     window.getLastWindow(this.getUIContext().getHostContext()).then((win) => {
       win.setWindowLayoutFullScreen(true).catch((err: string) => {
         console.log(err)
       })
     })
   }
-  private async getCoupon() {
-    try {
-      const res = await getHomeData()
-      this.coupon = res.data.couponList
-      console.log(JSON.stringify(this.coupon))
-    } catch (err) {
-      console.error(err)
-    }
-  }
+
   build() {
     Column({space:10}){
       Row(){

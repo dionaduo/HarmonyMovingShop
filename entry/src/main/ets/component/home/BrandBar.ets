@@ -2,23 +2,16 @@
 import { header } from '../common/header'
 import { Brand } from '../../viewModel/home/IHomeData'
 import { getHomeData } from '../../api/home'
+import { loadData } from '../../api';
 
 @Component
 export struct BrandBar {
   @State brand: Array<Brand> = []
 
-  aboutToAppear(): void {
-    this.loadBrandData()
+  async aboutToAppear(): Promise<void> {
+    this.brand = await loadData(this.brand, 'brandList');
   }
 
-  private async loadBrandData() {
-    try {
-      const res = await getHomeData()
-      this.brand = res.data?.brandList || []
-    } catch (err) {
-      console.error('加载品牌数据失败:', err)
-    }
-  }
 
   build() {
     Column() {
