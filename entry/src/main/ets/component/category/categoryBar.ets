@@ -58,7 +58,7 @@ export struct categoryBar {
       if (this.selectedIndex === index){
         Divider().strokeWidth(2).width(12).color(Color.Red)
       }
-    }.width(30).backgroundColor(this.selectedIndex === index ? '#ffeeeded' : Color.Transparent)
+    }.width(30).backgroundColor(this.selectedIndex === index ? '#ffe9e9e9' : Color.Transparent)
   }
 
   build() {
@@ -131,12 +131,12 @@ export struct categoryBar {
             .padding({ top: 30,bottom:30 })
             .rowsTemplate('repeat(5,1fr)')
             .columnsTemplate('repeat(3,1fr)')
-            .rowsGap(2)
+            .rowsGap(5)
             .columnsGap(5)
           }.scrollable(ScrollDirection.Vertical)
         }
       }
-      .padding(5)
+      .padding({bottom:30,left:5,right:5})
       .layoutWeight(85)
     }
     .width("100%")

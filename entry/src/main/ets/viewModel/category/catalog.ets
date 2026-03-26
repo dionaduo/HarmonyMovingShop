@@ -4,7 +4,7 @@ import { GoodsItem } from "../goods/goods";
 export interface CategoryL1 {
   id: number;
   name: string;
-  keywords: string;
+  keyword: string;
   desc: string;
   pid: number;
   iconUrl: string;

@@ -1,3 +1,5 @@
+import { Category, CategoryL1 } from "../category/catalog";
+
 export interface GoodsBase {
   id: number;
   name: string;

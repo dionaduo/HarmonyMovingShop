@@ -1,13 +1,5 @@
-import {
-  GoodsDetailData,
-  SpecificationGroup,
-  SpecificationValue,
-  Attribute,
-  Issue,
-  CommentItem
-} from '../../viewModel/goods/goodsDetail';
+import { Brand, CommentItem, GoodsDetailData } from '../../viewModel/goods/goodsDetail';
 import { header } from '../common/header';
-import { window } from '@kit.ArkUI';
 import { goodsTabBar } from './goodsTabBar';
 import { AttributeDialog } from './AttributeDialog';
 
@@ -83,7 +75,7 @@ export struct goodsDetail {
                 .onClick(() => {
                   this.goodsRouter.back()
                 })
-            }.width('20%').backgroundColor('#ffe2e2e2')
+            }.width('20%')
 
             Text().width('80%').height(30).backgroundColor(Color.White)
           }.justifyContent(FlexAlign.Center).position({top:0}).zIndex(999)
@@ -183,13 +175,18 @@ export struct goodsDetail {
                         .padding({ left: 10, right: 10 })
                     }.width('80%')
                   }
-                  .border({
-                    width: 1,
-                    color: Color.Gray
-                  })
+                  .border({ width: 1, color: Color.Gray })
                   .width('80%')
                   .padding(10)
                   .borderRadius(12)
+                  .onClick(()=>{
+                    this.goodsRouter.pushUrl({
+                      url:'view/home/BrandDetailPage',
+                      params:{
+                        id:this.detail.brand.id
+                      }as Brand
+                    })
+                  })
                 }else {
                   Divider().width('90%').strokeWidth(1)
                 }

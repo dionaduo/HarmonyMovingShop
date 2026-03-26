@@ -8,6 +8,8 @@ import { loadData } from '../../api';
 export struct BrandBar {
   @State brand: Array<Brand> = []
 
+  private router = this.getUIContext().getRouter()
+
   async aboutToAppear(): Promise<void> {
     this.brand = await loadData(this.brand, 'brandList');
   }
@@ -46,6 +48,14 @@ export struct BrandBar {
               radius: 5
             })
             .backgroundColor(Color.White)
+            .onClick(()=>{
+              this.router.pushUrl({
+                url: 'view/home/BrandDetailPage',
+                params: {
+                  id: item.id
+                }as Brand
+              })
+            })
           }
         })
       }
