@@ -1,6 +1,7 @@
 import { it } from '@ohos/hypium'
 import { loadData } from '../../api';
 import { getHomeData } from '../../api/home'
+import { Category } from '../../viewModel/category/catalog';
 import { Channel } from '../../viewModel/home/IHomeData'
 
 @Component
@@ -23,10 +24,10 @@ export struct ChannelBar {
               Text(item.name).fontSize(12).fontFamily('PingFang SC').textAlign(TextAlign.Center)
             }.onClick(()=>{
               this.router.pushUrl({
-                url: '',
+                url: 'view/category/subCategory',
                 params: {
-                  channelId: item.id
-                }
+                  id: item.id
+                }as Category
               })
             })
           }

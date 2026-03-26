@@ -1,7 +1,12 @@
 // subCategory.ets
-import { getSubCategoryGoods, getSubCategoryDetail, subCategoryInterface } from "../../api/category/catalog"
+import { getSubCategoryGoods, getSubCategoryDetail, subCategoryInterface,
+  getCurrentCategory } from "../../api/category/catalog"
 import { ApiResponse } from "../../viewModel"
-import { CategoryL2, SubCategoryGoodsList, SubCategoryDetail } from "../../viewModel/category/catalog"
+import { Category,
+  CategoryL1,
+  CategoryL2,
+  CurrentCategoryData,
+  PageList, SubCategoryDetail } from "../../viewModel/category/catalog"
 import { GoodsItem } from "../../viewModel/goods/goods"
 import { goods } from "../../component/goods/goods"
 
@@ -12,6 +17,7 @@ export struct subCategory {
   @State currentCategoryId: number = 0
   @State currentCategoryName: string = ""
   // ==================== Tabs 数据 ====================
+  // @State mainCategory: CategoryL1 = {} as CategoryL1
   @State subCategories: CategoryL2[] = []
   @State selectedTabIndex: number = 0
   // ==================== 商品数据 ====================
@@ -25,7 +31,7 @@ export struct subCategory {
 
   aboutToAppear(): void {
     const params = this.router.getParams() as CategoryL2
-    this.currentCategoryId = params.id || 0
+    this.currentCategoryId = params.id || (this.router.getParams() as Category).id
     this.currentCategoryName = params.name || ""
 
     console.log('传入的子分类id: ' + JSON.stringify(this.currentCategoryId))
@@ -39,7 +45,11 @@ export struct subCategory {
   async loadSubCategoryDetail(): Promise<void> {
     try {
       const resp: ApiResponse<SubCategoryDetail> = await getSubCategoryDetail(this.currentCategoryId)
+      // const mainResp = await getCurrentCategory(this.currentCategoryId)
+
       const data = resp.data || {} as SubCategoryDetail
+
+      // this.mainCategory = mainResp.data.currentCategory
 
       this.subCategories = data.brotherCategory || []
 
@@ -76,8 +86,8 @@ export struct subCategory {
         limit: this.limit
       }
 
-      const resp: ApiResponse<SubCategoryGoodsList> = await getSubCategoryGoods(params)
-      const data = resp.data || {} as SubCategoryGoodsList
+      const resp: ApiResponse<PageList<GoodsItem[]>> = await getSubCategoryGoods(params)
+      const data = resp.data || {} as PageList<GoodsItem[]>
 
       if (isRefresh) {
         this.goodsList = data.list || []
@@ -152,32 +162,39 @@ export struct subCategory {
               .layoutWeight(1)
               .justifyContent(FlexAlign.Center)
             } else {
-              List({ space: 5 }) {
-                ForEach(this.goodsList, (item: GoodsItem) => {
-                  ListItem() {
-                    goods({
-                      goodsImage: item.picUrl || "",
-                      goodTitle: item.name || "未知商品",
-                      goodsDesc: item.brief || "",
-                      goodsRealPrice: item.retailPrice || 0,
-                      goodsCurPrice: item.counterPrice || 0
-                    })
-                      .onClick(() => {
-                        console.log(`点击商品: ${item.name} (id: ${item.id})`)
-                        this.router.pushUrl({
-                          url: "view/goods/GoodsDetailPage",
-                          params: { id: item.id } as GoodsItem
-                        }).catch((e: string) => {
-                          console.log('跳转失败:' + e)
-                        })
+              Column(){
+                // Row() {
+                //   Image(this.mainCategory.picUrl).width(200)
+                //   Text(this.mainCategory.name).fontSize(16).fontColor(Color.Gray)
+                // }
+
+                List({ space: 5 }) {
+                  ForEach(this.goodsList, (item: GoodsItem) => {
+                    ListItem() {
+                      goods({
+                        goodsImage: item.picUrl || "",
+                        goodTitle: item.name || "未知商品",
+                        goodsDesc: item.brief || "",
+                        goodsRealPrice: item.retailPrice || 0,
+                        goodsCurPrice: item.counterPrice || 0
                       })
-                  }
-                })
+                        .onClick(() => {
+                          console.log(`点击商品: ${item.name} (id: ${item.id})`)
+                          this.router.pushUrl({
+                            url: "view/goods/GoodsDetailPage",
+                            params: { id: item.id } as GoodsItem
+                          }).catch((e: string) => {
+                            console.log('跳转失败:' + e)
+                          })
+                        })
+                    }
+                  })
+                }
+                .height('100%')
+                .layoutWeight(1)
+                .padding({ left: 5, right: 5 })
+                .onReachEnd(() => this.onReachBottom())
               }
-              .height('100%')
-              .layoutWeight(1)
-              .padding({ left: 5, right:5 })
-              .onReachEnd(() => this.onReachBottom())
             }
           }
           .tabBar(this.subTitleBuilder(sub, index))

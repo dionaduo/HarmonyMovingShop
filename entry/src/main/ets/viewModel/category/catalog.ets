@@ -54,13 +54,13 @@ export interface SubCategoryDetail {
 }
 
 // 子分类商品列表分页响应
-export interface SubCategoryGoodsList {
+export interface PageList<T> {
   total: number; // 总记录数
   pages: number; // 总页数
   limit: number; // 每页条数
   page: number; // 当前页码
-  filterCategoryList: CategoryL2[]; // 筛选的分类列表
-  list: GoodsItem[]; // 商品列表
+  filterCategoryList?: CategoryL2[]; // 筛选的分类列表
+  list: T; // 商品列表
 }
 
 // 方便组件使用的联合类型（可选）

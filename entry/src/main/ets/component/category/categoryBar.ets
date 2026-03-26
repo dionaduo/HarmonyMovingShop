@@ -2,7 +2,7 @@
 import { getCategory, getCurrentCategory } from "../../api/category/catalog"
 import { ApiResponse } from "../../viewModel"
 import { CategoryData, CurrentCategoryData, CategoryL1, CategoryL2, Category,
-  SubCategoryGoodsList } from "../../viewModel/category/catalog"
+  PageList } from "../../viewModel/category/catalog"
 import { lineGoods } from "../goods/lineGoods"
 
 @Component
@@ -93,37 +93,47 @@ export struct categoryBar {
             .fontColor(Color.Gray)
             .padding(20)
         } else {
-          Grid(){
-            ForEach(this.currentSubCategories, (sub: CategoryL2) => {
-              GridItem() {
-                lineGoods({
-                  picUrl: sub.picUrl,
-                  name: sub.name
-                })
+          Column({space:5}){
+            ForEach(this.categoryMain,(item:CategoryL1,index:number)=>{
+              if (this.selectedIndex===index) {
+                Image(item.picUrl).width('100%').objectFit(ImageFit.Contain)
+                Text(item.desc).fontSize(16).fontColor(Color.Black)
               }
-
-              .backgroundColor(Color.White)
-              .borderRadius(8)
-              .onClick(() => {
-                console.log(`点击二级分类: ${sub.name} (id: ${sub.id})`)
-                this.router.pushUrl({
-                  url: 'view/category/subCategory',
-                  params: {
-                    id: sub.id,
+            })
+          }.width('100%')
+          .padding({top:30})
+          Scroll(){
+            Grid() {
+              ForEach(this.currentSubCategories, (sub: CategoryL2) => {
+                GridItem() {
+                  lineGoods({
+                    picUrl: sub.picUrl,
                     name: sub.name
-                  } as CategoryL2
-                }).catch((e: string) => {
-                  console.log('跳转失败:' + e)
+                  })
+                }
+
+                .backgroundColor(Color.White)
+                .borderRadius(8)
+                .onClick(() => {
+                  console.log(`点击二级分类: ${sub.name} (id: ${sub.id})`)
+                  this.router.pushUrl({
+                    url: 'view/category/subCategory',
+                    params: {
+                      id: sub.id,
+                      name: sub.name
+                    } as CategoryL2
+                  }).catch((e: string) => {
+                    console.log('跳转失败:' + e)
+                  })
                 })
               })
-            })
-          }
-          .padding({top:30})
-          .rowsTemplate('repeat(5,1fr)')
-          .columnsTemplate('repeat(3,1fr)')
-          .rowsGap(2)
-          .columnsGap(5)
-
+            }
+            .padding({ top: 30,bottom:30 })
+            .rowsTemplate('repeat(5,1fr)')
+            .columnsTemplate('repeat(3,1fr)')
+            .rowsGap(2)
+            .columnsGap(5)
+          }.scrollable(ScrollDirection.Vertical)
         }
       }
       .padding(5)
