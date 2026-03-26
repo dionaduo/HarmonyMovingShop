@@ -1,6 +1,7 @@
 {
   "src": [
     "pages/Index",
-    "view/goods/GoodsDetailPage"
+    "view/goods/GoodsDetailPage",
+    "view/category/subCategory"
   ]
 }

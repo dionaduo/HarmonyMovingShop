@@ -1,7 +1,8 @@
 // categoryBar.ets
 import { getCategory, getCurrentCategory } from "../../api/category/catalog"
 import { ApiResponse } from "../../viewModel"
-import { CategoryData, CurrentCategoryData, CategoryL1, CategoryL2, Category } from "../../viewModel/category/catalog"
+import { CategoryData, CurrentCategoryData, CategoryL1, CategoryL2, Category,
+  SubCategoryGoodsList } from "../../viewModel/category/catalog"
 import { lineGoods } from "../goods/lineGoods"
 
 @Component
@@ -11,6 +12,7 @@ export struct categoryBar {
   @State currentSubCategories: CategoryL2[] = [] // 当前一级下的二级分类（右侧显示）
   @State selectedIndex: number = 0 // 当前选中的一级分类索引
   private tabsController: TabsController = new TabsController()
+  private router = this.getUIContext().getRouter()
 
   async aboutToAppear(): Promise<void> {
     try {
@@ -103,7 +105,15 @@ export struct categoryBar {
               .borderRadius(8)
               .onClick(() => {
                 console.log(`点击二级分类: ${sub.name} (id: ${sub.id})`)
-                // router.pushUrl({ url: 'pages/goodsList', params: { categoryId: sub.id } })
+                this.router.pushUrl({
+                  url: 'view/category/subCategory',
+                  params: {
+                    id: sub.id,
+                    name: sub.name
+                  } as CategoryL2
+                }).catch((e: string) => {
+                  console.log('跳转失败:' + e)
+                })
               })
             })
           }.rowsTemplate('repeat(4,1fr)')

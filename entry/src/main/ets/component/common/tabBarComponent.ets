@@ -1,4 +1,4 @@
-import { TabContentBuilder } from "@kit.ArkUI";
+import { TabContentBuilder, window } from "@kit.ArkUI";
 
 interface ITitle {
   title: string;
@@ -79,7 +79,9 @@ export struct tabBarComponent {
           }
         }.tabBar(this.tabItem(index, item.title, this.currTabImage[index], this.currTabImage[4]))
       })
-    }.scrollable(false).barPosition(BarPosition.End)
+    }
+    .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.BOTTOM])
+    .scrollable(false).barPosition(BarPosition.End)
     .onChange((index: number) => {
       this.curTabIndex = index
     })

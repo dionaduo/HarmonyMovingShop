@@ -57,6 +57,7 @@ export struct goodsDetail {
   }
   build() {
     Column() {
+      Blank().height(30)
       if (!this.detail || !this.detail.info) {
         Column() {
           Text('加载中...')
@@ -80,10 +81,9 @@ export struct goodsDetail {
                 .height(30)
                 .padding(5)
                 .onClick(() => {
-                  console.log("点击返回按钮:" + this.goodsRouter.back())
                   this.goodsRouter.back()
                 })
-            }.width('20%').backgroundColor(Color.Gray)
+            }.width('20%').backgroundColor('#ffe2e2e2')
 
             Text().width('80%').height(30).backgroundColor(Color.White)
           }.justifyContent(FlexAlign.Center).position({top:0}).zIndex(999)
@@ -324,7 +324,7 @@ export struct goodsDetail {
           }
           .height(10)
           .width('100%')
-          .position({bottom:45})
+          .position({bottom:75})
           .zIndex(999)
         }
         .width('100%')

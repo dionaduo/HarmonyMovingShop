@@ -56,6 +56,8 @@ export struct goods {
       .layoutWeight(1) // 占满剩余空间
       .justifyContent(FlexAlign.Start)
     }
+    .justifyContent(FlexAlign.Center)
+    .alignItems(VerticalAlign.Top)
     .padding(5) // 整体内边距
     .border({ width: 1, color: Color.Gray, radius: 12 })
     .backgroundColor(Color.White)

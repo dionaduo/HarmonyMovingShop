@@ -22,7 +22,7 @@ export const getSubCategoryDetail = (
 };
 
 // 获取子分类下的商品列表（分页）
-interface subCategoryInterface { categoryId: number;page: number;limit: number; }
+export interface subCategoryInterface { categoryId: number;page: number;limit: number; }
 
 export const getSubCategoryGoods = (params: subCategoryInterface): Promise<ApiResponse<SubCategoryGoodsList>> => {
   return httpRequest.get("goods/list", { params });

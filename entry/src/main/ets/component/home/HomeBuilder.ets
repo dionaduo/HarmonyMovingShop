@@ -31,7 +31,7 @@ export struct HomeBuilder {
           .width('100%')
         }.justifyContent(FlexAlign.Center).width('100%')
       }
-    }.width('100%').padding({ left: 10, right: 10 })
+    }.width('100%').padding({top:30, left: 10, right: 10 })
 
   }
 }
