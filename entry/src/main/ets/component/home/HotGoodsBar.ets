@@ -44,6 +44,8 @@ export struct HotGoodsBar{
       }
       .scrollBar(BarState.Off)
       .width('100%').height(300).padding({top:3})
-    }.width('100%').padding(10)
+    }
+
+    .width('100%').padding(10)
   }
 }

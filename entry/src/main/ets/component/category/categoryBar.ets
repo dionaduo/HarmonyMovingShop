@@ -101,6 +101,7 @@ export struct categoryBar {
                   name: sub.name
                 })
               }
+
               .backgroundColor(Color.White)
               .borderRadius(8)
               .onClick(() => {
@@ -116,10 +117,12 @@ export struct categoryBar {
                 })
               })
             })
-          }.rowsTemplate('repeat(4,1fr)')
+          }
+          .padding({top:30})
+          .rowsTemplate('repeat(5,1fr)')
           .columnsTemplate('repeat(3,1fr)')
           .rowsGap(2)
-          .columnsGap(2)
+          .columnsGap(5)
 
         }
       }

@@ -56,6 +56,13 @@ export struct goods {
       .layoutWeight(1) // 占满剩余空间
       .justifyContent(FlexAlign.Start)
     }
+    .shadow({
+      offsetY: 3,
+      offsetX: 2,
+      radius: 10,
+      color: Color.Gray,
+      fill: false
+    })
     .justifyContent(FlexAlign.Center)
     .alignItems(VerticalAlign.Top)
     .padding(5) // 整体内边距

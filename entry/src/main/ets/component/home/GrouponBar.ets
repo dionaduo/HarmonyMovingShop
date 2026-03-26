@@ -81,6 +81,13 @@ export struct GrouponBar {
       .justifyContent(FlexAlign.Start)
       .padding(2)
     }
+    .shadow({
+      offsetY: 3,
+      offsetX: 2,
+      radius: 10,
+      color: Color.Gray,
+      fill: false
+    })
     .width('100%')
     .padding(8)
     .border({ width: 1, color: Color.Gray, radius: 8 })

@@ -7,6 +7,8 @@ import { Channel } from '../../viewModel/home/IHomeData'
 export struct ChannelBar {
   @State channelImage:  Array<Channel> = []
 
+  private router = this.getUIContext().getRouter()
+
   async aboutToAppear(): Promise<void> {
     this.channelImage = await loadData(this.channelImage, 'channel');
   }
@@ -19,7 +21,14 @@ export struct ChannelBar {
             Column(){
               Image(item.iconUrl).width(30).height(30)
               Text(item.name).fontSize(12).fontFamily('PingFang SC').textAlign(TextAlign.Center)
-            }
+            }.onClick(()=>{
+              this.router.pushUrl({
+                url: '',
+                params: {
+                  channelId: item.id
+                }
+              })
+            })
           }
         })
       }.width('100%')

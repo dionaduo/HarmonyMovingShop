@@ -29,7 +29,15 @@ export struct coupon {
             Text(this.days + '天').fontSize(10).fontColor(Color.Gray).padding(5)
           }
         }.layoutWeight(8)
-      }.border({ width: 1, color: Color.Red })
+      }
+      .shadow({
+        offsetY: 3,
+        offsetX: 2,
+        radius: 10,
+        color: Color.Gray,
+        fill: false
+      })
+      .border({ width: 1, color: Color.Red })
       .borderRadius(5)
       .height(80)
       .padding(5)

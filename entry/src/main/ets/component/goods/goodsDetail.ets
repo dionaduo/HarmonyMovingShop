@@ -74,7 +74,7 @@ export struct goodsDetail {
             Row(){
               Image($r('app.media.right_arrow'))
                 .width(20)
-                .fillColor(Color.White)
+                .fillColor(Color.Black)
                 .padding({left:5,bottom:2})
               Text('返回')
                 .textAlign(TextAlign.End)
@@ -319,7 +319,6 @@ export struct goodsDetail {
           }
           // ==================== 固定底部操作栏 ====================
           Row() {
-            // 可后续替换为真实购买按钮、收藏等
             goodsTabBar()
           }
           .height(10)

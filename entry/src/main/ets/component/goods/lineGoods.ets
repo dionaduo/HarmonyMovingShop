@@ -25,6 +25,13 @@ export struct lineGoods {
           .fontWeight(FontWeight.Bolder)
       }
     }
+    .shadow({
+      offsetY:3,
+      offsetX: 2,
+      radius: 10,
+      color: Color.Gray,
+      fill: false
+    })
     .width('100%')
     .height(130)
     .border({

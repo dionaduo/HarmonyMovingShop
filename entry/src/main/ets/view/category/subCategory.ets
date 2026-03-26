@@ -180,7 +180,6 @@ export struct subCategory {
               .onReachEnd(() => this.onReachBottom())
             }
           }
-          .padding(0)
           .tabBar(this.subTitleBuilder(sub, index))
         })
       }
