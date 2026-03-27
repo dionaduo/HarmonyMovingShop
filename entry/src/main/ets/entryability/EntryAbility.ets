@@ -1,6 +1,7 @@
 import { AbilityConstant, ConfigurationConstant, UIAbility, Want } from '@kit.AbilityKit';
 import { hilog } from '@kit.PerformanceAnalysisKit';
 import { window } from '@kit.ArkUI';
+import PreferencesUtil from '../utils/PreferencesUtil';
 
 const DOMAIN = 0x0000;
 
@@ -20,6 +21,7 @@ export default class EntryAbility extends UIAbility {
   }
 
   onWindowStageCreate(windowStage: window.WindowStage): void {
+    PreferencesUtil.init(this.context)
     let windowClass: window.Window = windowStage.getMainWindowSync();
     windowClass.setWindowLayoutFullScreen(true);
     let TYPE_SYSTEM = window.AvoidAreaType.TYPE_SYSTEM //系统保留区域（状态栏、导航栏等）

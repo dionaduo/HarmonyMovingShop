@@ -1,5 +1,4 @@
 // searchBar.ets
-import router from '@ohos.router'
 import { CategoryL1, PageList } from '../../viewModel/category/catalog'
 import { GoodsItem } from '../../viewModel/goods/goods'
 

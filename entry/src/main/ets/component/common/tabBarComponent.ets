@@ -7,7 +7,7 @@ interface ITitle {
 
 @Component
 export struct tabBarComponent {
-  @State curTabIndex: number = 0
+  @Link curTabIndex: number
   @State currTabImage: Resource[] = [
     $r('app.media.MF'),
     $r('app.media.MU'),
@@ -21,6 +21,9 @@ export struct tabBarComponent {
     { title: '购物车', color: Color.Green },
     { title: '我的', color: Color.Orange }
   ]
+
+  // 路由守卫回调 - 返回 true 允许切换，false 阻止切换
+  onTabChange?: (index: number) => Promise<boolean>;
 
   @Builder
   tabItem(index: number, title: string, icon: Resource, selectedIcon: Resource) {
@@ -63,27 +66,51 @@ export struct tabBarComponent {
   }
 
   build() {
-    Tabs() {
-      ForEach(this.titleList, (item: ITitle, index: number) => {
-        TabContent() {
-          if (index === 0 && this.homeContent) {
-            this.homeContent()
-          } else if (index === 1 && this.recommendContent) {
-            this.recommendContent()
-          } else if (index === 2 && this.favoriteContent) {
-            this.favoriteContent()
-          } else if (index === 3 && this.moreContent) {
-            this.moreContent()
-          } else {
-            this.defaultPlaceholder(item.title)
+    Column() {
+      // Tab 内容区域 - 用 Column 包装，可以添加 layoutWeight
+      Column() {
+        if (this.curTabIndex === 0 && this.homeContent) {
+          this.homeContent()
+        } else if (this.curTabIndex === 1 && this.recommendContent) {
+          this.recommendContent()
+        } else if (this.curTabIndex === 2 && this.favoriteContent) {
+          this.favoriteContent()
+        } else if (this.curTabIndex === 3 && this.moreContent) {
+          this.moreContent()
+        } else {
+          this.defaultPlaceholder(this.titleList[this.curTabIndex].title)
+        }
+      }
+      .layoutWeight(1)
+
+      // 自定义 TabBar
+      Row() {
+        ForEach(this.titleList, (item: ITitle, index: number) => {
+          Column() {
+            this.tabItem(index, item.title, this.currTabImage[index], this.currTabImage[4])
           }
-        }.tabBar(this.tabItem(index, item.title, this.currTabImage[index], this.currTabImage[4]))
-      })
+          .layoutWeight(1)
+          .onClick(async () => {
+            if (index === this.curTabIndex) return
+
+            // 如果有守卫回调，先执行守卫逻辑
+            if (this.onTabChange) {
+              const canChange = await this.onTabChange(index)
+              if (canChange) {
+                this.curTabIndex = index
+              }
+            } else {
+              this.curTabIndex = index
+            }
+          })
+        })
+      }
+      .width('100%')
+      .height(56)
+      .backgroundColor(Color.White)
+      .border({ width: { top: 0.5 }, color: '#F0F0F0' })
     }
-    .expandSafeArea([SafeAreaType.SYSTEM], [SafeAreaEdge.BOTTOM])
-    .scrollable(false).barPosition(BarPosition.End)
-    .onChange((index: number) => {
-      this.curTabIndex = index
-    })
+    .width('100%')
+    .height('100%')
   }
 }

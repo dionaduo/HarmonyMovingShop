@@ -4,6 +4,7 @@
     "view/goods/GoodsDetailPage",
     "view/category/subCategory",
     "view/home/BrandDetailPage",
-    "view/home/searchResult"
+    "view/home/searchResult",
+    "view/mine/CheckoutPage"
   ]
 }

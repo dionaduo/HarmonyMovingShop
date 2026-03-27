@@ -5,6 +5,11 @@ export interface ApiResponse<T> {
   data: T,
 }
 
+export interface NoApi {
+  errno: number;
+  errmsg: string;
+}
+
 export type HomeData = HomePageData;
 
 export function createDefaultHomeData(): HomePageData {
