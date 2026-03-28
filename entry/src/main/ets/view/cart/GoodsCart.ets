@@ -1,9 +1,8 @@
 import {
-  checkoutCart, deleteCart, getCartList, updateCart
+  deleteCart, getCartList, updateCart
 } from '../../api/cart/cart'
 import { ApiResponse, NoApi } from '../../viewModel'
 import { CartItem, CartList,
-  Checkout,
   CheckoutParams, DeleteCartParams, UpdateCartParams } from '../../viewModel/cart/cart'
 import { Prompt} from '@kit.ArkUI'
 import PreferencesUtil from '../../utils/PreferencesUtil'
@@ -158,12 +157,12 @@ export struct GoodsCart {
   private async handleDelete(): Promise<void> {
     try {
       const params: DeleteCartParams = { productIds: this.deleteProductIds }
-      const res = await deleteCart(params)
-      if (res.productIds.length === 0) {
+      const res: ApiResponse<CartList> = await deleteCart(params)
+      if (res.errno === 0) {
         this.prompt.showToast({ message: '删除成功' })
         await this.fetchCartList()
       } else {
-        this.prompt.showToast({ message: '删除失败' })
+        this.prompt.showToast({ message: res.errmsg || '删除失败' })
       }
     } catch (error) {
       console.error('删除失败', error)
@@ -182,18 +181,15 @@ export struct GoodsCart {
       .map((item: CartItem) => item.id)
 
     try {
-      const params: CheckoutParams = { cartIds: cartIds.join(',') }
-      const res: ApiResponse<Checkout> = await checkoutCart(params) // 实际返回 Checkout
-      if (res.errno === 0) {
-        // 跳转到确认订单页
-        this.router.pushUrl({ url: 'view/mine/CheckoutPage' })
-          .catch((err:string) => console.error('跳转结算页面失败:', err))
-      } else {
-        this.prompt.showToast({ message: res.errmsg || '结算失败' })
-      }
+      // 跳转到确认订单页,传递 cartIds 参数
+      this.router.pushUrl({
+        url: 'view/mine/CheckoutPage',
+        params: { cartIds: cartIds.join(',') }
+      })
+        .catch((err:string) => console.error('跳转结算页面失败:', err))
     } catch (error) {
-      console.error('结算失败', error)
-      this.prompt.showToast({ message: '网络请求失败' })
+      console.error('跳转失败', error)
+      this.prompt.showToast({ message: '跳转失败' })
     }
   }
 
@@ -258,10 +254,11 @@ export struct GoodsCart {
           if (!this.isEditMode) {
             // 简易步进器
             Row({ space: 0 }) {
-              Button('-')
+              Text('-')
+                .textAlign(TextAlign.Center)
                 .fontSize(16)
                 .fontColor('#666666')
-                .backgroundColor(Color.Transparent)
+                .backgroundColor('#ffe2e2e2')
                 .width(28)
                 .height(28)
                 .borderRadius(4)
@@ -271,16 +268,18 @@ export struct GoodsCart {
                   }
                 })
 
-              Text(`${item.number}`)
+              Text(item.number.toString())
                 .fontSize(14)
                 .fontColor('#333333')
                 .width(32)
                 .textAlign(TextAlign.Center)
 
-              Button('+')
+              Text('+')
+                .textAlign(TextAlign.Center)
+
                 .fontSize(16)
                 .fontColor('#666666')
-                .backgroundColor(Color.Transparent)
+                .backgroundColor('#ffe5e5e5')
                 .width(28)
                 .height(28)
                 .borderRadius(4)
@@ -372,11 +371,14 @@ export struct GoodsCart {
         // 购物车列表
         Scroll() {
           Column() {
-            ForEach(this.cartList, (item: CartItem) => {
-              this.buildCartItem(item)
-            })
+              ForEach(this.cartList, (item: CartItem) => {
+                this.buildCartItem(item)
+              })
           }
+          .justifyContent(FlexAlign.Start)
+          .height('100%')
           .padding(12)
+
         }
         .scrollBar(BarState.Off)
         .layoutWeight(1)
@@ -385,18 +387,6 @@ export struct GoodsCart {
       // 底部栏
       if (this.cartList.length > 0) {
         Row() {
-          // 全选
-          Row({ space: 8 }) {
-            Checkbox()
-              .select(this.cartList.every((item: CartItem) => item.checked))
-              .width(22)
-              .height(22)
-              .onClick(() => this.toggleAll())
-            Text('全选')
-              .fontSize(14)
-              .fontColor('#333333')
-          }
-          .alignItems(VerticalAlign.Center)
 
           // 价格 / 操作
           if (!this.isEditMode) {
@@ -427,13 +417,14 @@ export struct GoodsCart {
               .onClick(() => this.handleBatchRemove())
           }
         }
-        .alignItems(VerticalAlign.Center)
+        .alignItems(VerticalAlign.Top)
         .height(60)
         .padding({ left: 16, right: 16 })
         .backgroundColor('#ffffff')
         .border({ width: { top: 0.5 }, color: '#f0f0f0' })
       }
     }
+    .padding({top:30})
     .width('100%')
     .height('100%')
     .backgroundColor('#f7f8fa')

@@ -60,7 +60,7 @@ export interface PageList<T> {
   limit: number; // 每页条数
   page: number; // 当前页码
   filterCategoryList?: CategoryL2[]; // 筛选的分类列表
-  list: T; // 商品列表
+  list: T[]; // 商品列表
 }
 
 // 方便组件使用的联合类型（可选）

@@ -46,8 +46,7 @@ export struct CheckoutPage {
       // 同时获取地址列表用于弹窗选择
       const addrRes = await getAddressList()
       if (addrRes.errno === 0 && addrRes.data) {
-        const Ros = addrRes.data.list
-        this.addressList = Array(Ros)
+        this.addressList = addrRes.data.list
       }
     } catch (e) {
       console.error('加载确认订单失败', e)
@@ -62,7 +61,7 @@ export struct CheckoutPage {
     this.isSubmitting = true
 
     const params: OrderSubmitParams = {
-      cartId: 0, // 根据实际后端调整，可能需要从checkoutData中获取
+      cartId: 0,
       addressId: this.selectedAddressId,
       couponId: this.selectedCouponId ?? 0,
       userCouponId: 0,
@@ -172,7 +171,7 @@ export struct CheckoutPage {
           .borderRadius(20)
           .onClick(() => {
             this.addressDialogController = new CustomDialogController({
-              builder: this.buildAddressDialog.bind(this),
+              builder: this.buildAddressDialog,
               customStyle: true,
               alignment: DialogAlignment.Bottom
             })
@@ -257,6 +256,7 @@ export struct CheckoutPage {
       .backgroundColor(Color.White)
       .border({ width: { top: 1 }, color: '#f0f0f0' })
     }
+    .padding({top:30})
     .width('100%')
     .height('100%')
     .backgroundColor('#f5f5f5')

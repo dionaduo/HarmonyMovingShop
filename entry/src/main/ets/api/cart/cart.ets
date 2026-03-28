@@ -12,7 +12,7 @@ export const updateCart = (data: UpdateCartParams): Promise<NoApi> => {
   return httpRequest.post('cart/update', data)
 }
 
-export const deleteCart = (data: DeleteCartParams): Promise<DeleteCartParams> => {
+export const deleteCart = (data: DeleteCartParams): Promise<ApiResponse<CartList>> => {
   return httpRequest.post('cart/delete', data)
 }
 
