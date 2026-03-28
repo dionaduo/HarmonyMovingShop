@@ -38,7 +38,7 @@ export struct TopicBar {
               }.width('100%').padding(3)
               .onClick(() => {
                 this.getUIContext().getRouter().pushUrl({
-                  url: 'view/goods/TopicDetailPage',
+                  url: 'view/home/TopicDetailPage',
                   params: { id: item.id } as Topic
                 }).catch((err: string) => {
                   console.log('跳转失败,错误信息:' + err)

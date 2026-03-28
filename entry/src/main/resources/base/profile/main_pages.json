@@ -13,6 +13,7 @@
     "pages/GrouponPage",
     "pages/HotGoodsPage",
     "pages/NewGoodsPage",
-    "pages/TopicPage"
+    "pages/TopicPage",
+    "view/home/TopicDetailPage"
   ]
 }

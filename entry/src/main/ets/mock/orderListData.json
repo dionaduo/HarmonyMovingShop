@@ -1,0 +1,91 @@
+{
+    "errno": 0,
+    "data": {
+        "grouponRulesId": 0,
+        "actualPrice": 1487.00,
+        "orderTotalPrice": 1487.00,
+        "cartId": 0,
+        "userCouponId": 0,
+        "couponId": 0,
+        "goodsTotalPrice": 1487.00,
+        "addressId": 36,
+        "grouponPrice": 0,
+        "checkedAddress": {
+            "id": 36,
+            "name": "111",
+            "userId": 1,
+            "province": "北京市",
+            "city": "市辖区",
+            "county": "东城区",
+            "addressDetail": "11",
+            "areaCode": "110101",
+            "postalCode": "",
+            "tel": "17872317742",
+            "isDefault": true,
+            "addTime": "2026-03-28 10:48:36",
+            "updateTime": "2026-03-28 10:48:36",
+            "deleted": false
+        },
+        "couponPrice": 0,
+        "availableCouponLength": 0,
+        "freightPrice": 0,
+        "checkedGoodsList": [
+            {
+                "id": 904,
+                "userId": 1,
+                "goodsId": 1127047,
+                "goodsSn": "1127047",
+                "goodsName": "趣味粉彩系列笔记本",
+                "productId": 182,
+                "price": 29.00,
+                "number": 1,
+                "specifications": [
+                    "标准"
+                ],
+                "checked": true,
+                "picUrl": "http://yanxuan.nosdn.127.net/6c03ca93d8fe404faa266ea86f3f1e43.png",
+                "addTime": "2026-03-28 10:51:56",
+                "updateTime": "2026-03-28 10:52:12",
+                "deleted": false
+            },
+            {
+                "id": 905,
+                "userId": 1,
+                "goodsId": 1181000,
+                "goodsSn": "1181000",
+                "goodsName": "母亲节礼物-舒适安睡组合",
+                "productId": 1,
+                "price": 999.00,
+                "number": 1,
+                "specifications": [
+                    "1.5m床垫*1+枕头*2",
+                    "浅杏粉"
+                ],
+                "checked": true,
+                "picUrl": "http://yanxuan.nosdn.127.net/1f67b1970ee20fd572b7202da0ff705d.png",
+                "addTime": "2026-03-28 10:52:03",
+                "updateTime": "2026-03-28 10:52:12",
+                "deleted": false
+            },
+            {
+                "id": 906,
+                "userId": 1,
+                "goodsId": 1152161,
+                "goodsSn": "1152161",
+                "goodsName": "竹语丝麻印花四件套",
+                "productId": 239,
+                "price": 459.00,
+                "number": 1,
+                "specifications": [
+                    "标准"
+                ],
+                "checked": true,
+                "picUrl": "http://yanxuan.nosdn.127.net/977401e75113f7c8334c4fb5b4bf6215.png",
+                "addTime": "2026-03-28 10:52:08",
+                "updateTime": "2026-03-28 10:52:12",
+                "deleted": false
+            }
+        ]
+    },
+    "errmsg": "成功"
+}

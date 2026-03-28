@@ -129,6 +129,7 @@ export struct OrderListPage {
         .backgroundColor('#F7F8FA')
       }
     }
+    .justifyContent(FlexAlign.Start)
     .padding({top :30})
     .width('100%')
     .height('100%')

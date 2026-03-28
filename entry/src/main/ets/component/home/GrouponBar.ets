@@ -108,7 +108,7 @@ export struct GrouponBar {
         moreHeadUrl: 'pages/GrouponPage'
       })
 
-      Column(){
+      Column({space:5}){
         ForEach(this.groupon, (item: Groupon, index: number) => {
           Row({space:5}){
             this.buildGrouponItem(item);

@@ -1,0 +1,54 @@
+{
+    "errno": 0,
+    "data": {
+        "grouponRulesId": 0,
+        "actualPrice": 199.00,
+        "orderTotalPrice": 199.00,
+        "cartId": 0,
+        "userCouponId": 0,
+        "couponId": 0,
+        "goodsTotalPrice": 199.00,
+        "addressId": 33,
+        "grouponPrice": 0,
+        "checkedAddress": {
+            "id": 33,
+            "name": "你好",
+            "userId": 1,
+            "province": "北京市",
+            "city": "市辖区",
+            "county": "东城区",
+            "addressDetail": "213123131",
+            "areaCode": "110101",
+            "postalCode": "",
+            "tel": "13977778888",
+            "isDefault": true,
+            "addTime": "2026-03-27 20:49:45",
+            "updateTime": "2026-03-27 20:49:45",
+            "deleted": false
+        },
+        "couponPrice": 0,
+        "availableCouponLength": 0,
+        "freightPrice": 0,
+        "checkedGoodsList": [
+            {
+                "id": 867,
+                "userId": 1,
+                "goodsId": 1084003,
+                "goodsSn": "1084003",
+                "goodsName": "纯棉美式绞花针织盖毯",
+                "productId": 101,
+                "price": 199.00,
+                "number": 1,
+                "specifications": [
+                    "标准"
+                ],
+                "checked": true,
+                "picUrl": "http://yanxuan.nosdn.127.net/cf40c167e7054fe184d49f19121f63c7.png",
+                "addTime": "2026-03-28 09:39:03",
+                "updateTime": "2026-03-28 09:52:05",
+                "deleted": false
+            }
+        ]
+    },
+    "errmsg": "成功"
+}
