@@ -15,7 +15,8 @@ export struct TopicBar {
     Column(){
       header({
         head:'专题',
-        moreHead:'更多专题'
+        moreHead:'更多专题',
+        moreHeadUrl: 'pages/TopicPage'
       })
       Row(){
         Grid(){
@@ -35,6 +36,14 @@ export struct TopicBar {
                   .fontColor(Color.Gray)
                   .textAlign(TextAlign.Center)
               }.width('100%').padding(3)
+              .onClick(() => {
+                this.getUIContext().getRouter().pushUrl({
+                  url: 'view/goods/TopicDetailPage',
+                  params: { id: item.id } as Topic
+                }).catch((err: string) => {
+                  console.log('跳转失败,错误信息:' + err)
+                })
+              })
             }
           })
         }.rowsTemplate('repeat(2,1fr)')

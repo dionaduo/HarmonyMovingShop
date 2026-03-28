@@ -115,7 +115,7 @@ export struct mine {
           .height(40)
           .fill('#33FFFFFF')
 
-        Image($r('app.media.startIcon'))
+        Image($r('app.media.setting'))
           .width(22)
           .height(22)
           .fillColor(Color.White)
@@ -245,11 +245,11 @@ export struct mine {
   @Builder
   buildServiceSection() {
     Column() {
-      this.buildMenuItem($r('app.media.startIcon'), '我的优惠券', this.userInfo?.couponCount || 0)
+      this.buildMenuItem($r('app.media.coupon'), '我的优惠券', this.userInfo?.couponCount || 0)
       this.buildDivider()
-      this.buildMenuItem($r('app.media.startIcon'), '我的收藏', this.collectCount)
+      this.buildMenuItem($r('app.media.colection1'), '我的收藏', this.collectCount)
       this.buildDivider()
-      this.buildMenuItem($r('app.media.startIcon'), '收货地址', this.addressCount)
+      this.buildMenuItem($r('app.media.address'), '收货地址', this.addressCount)
       this.buildDivider()
       this.buildMenuItem($r('app.media.servicer'), '服务中心', 0)
     }

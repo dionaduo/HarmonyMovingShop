@@ -7,6 +7,12 @@
     "view/home/searchResult",
     "view/mine/CheckoutPage",
     "view/login/LoginPage",
-    "pages/OrderListPage"
+    "pages/OrderListPage",
+    "pages/PaymentPage",
+    "pages/BrandListPage",
+    "pages/GrouponPage",
+    "pages/HotGoodsPage",
+    "pages/NewGoodsPage",
+    "pages/TopicPage"
   ]
 }

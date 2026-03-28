@@ -1,5 +1,6 @@
 import { Product, SpecificationGroup } from '../../viewModel/goods/goodsDetail';
-import { addToCart, fastAddToCart, addCartParams } from '../../api/cart/cart';
+import { addCartParams, addToCart, fastAddParams, fastAddToCart } from '../../api/cart/cart';
+
 
 @CustomDialog
 @Component
@@ -9,6 +10,8 @@ export struct AddToCartDialog {
   @Prop productList: Product[] = [];
   @Prop goodsId: number = 0;
   @Prop defaultPrice: number = 0;
+  @Prop goodsName: string = '';
+  @Prop goodsPicUrl: string = '';
   // 回调函数
   onAddToCart?: (productId: number, quantity: number) => void;
   onFastBuy?: (cartId: number, quantity: number) => void;
@@ -16,6 +19,8 @@ export struct AddToCartDialog {
   @State quantity: number = 1;
   @State isLoading: boolean = false;
   private prompt = this.getUIContext().getPromptAction()
+  // 本地状态存储productList的副本
+  @State localProductList: Product[] = [];
 
   aboutToAppear(): void {
     console.log('AddToCartDialog aboutToAppear')
@@ -23,31 +28,42 @@ export struct AddToCartDialog {
     console.log('productList:', JSON.stringify(this.productList))
     console.log('goodsId:', this.goodsId)
     console.log('defaultPrice:', this.defaultPrice)
+    // 将productList复制到本地状态
+    this.localProductList = [...this.productList];
+    console.log('localProductList:', JSON.stringify(this.localProductList))
   }
 
   // 安全获取当前选中规格
-  private get currentProduct(): Product {
-    console.log('currentProduct - productList.length:', this.productList.length, 'selectedProductIndex:', this.selectedProductIndex)
-    if (this.productList.length === 0 || this.selectedProductIndex >= this.productList.length) {
-      console.log('currentProduct - 返回空对象')
+  private getCurrentProduct(): Product {
+    console.log('getCurrentProduct - localProductList:', JSON.stringify(this.localProductList))
+    console.log('getCurrentProduct - localProductList.length:', this.localProductList.length, 'selectedProductIndex:', this.selectedProductIndex)
+    if (this.localProductList.length === 0) {
+      console.log('getCurrentProduct - localProductList为空,返回空对象')
       return {} as Product;
     }
-    const product = this.productList[this.selectedProductIndex];
-    console.log('currentProduct - 返回:', JSON.stringify(product))
+    if (this.selectedProductIndex >= this.localProductList.length) {
+      console.log('getCurrentProduct - 索引越界,重置为0')
+      this.selectedProductIndex = 0;
+    }
+    const product = this.localProductList[this.selectedProductIndex];
+    console.log('getCurrentProduct - 返回:', JSON.stringify(product))
     return product;
   }
 
-  private get currentPrice(): number {
-    return this.currentProduct?.price ?? this.defaultPrice;
+  private getCurrentPrice(): number {
+    const product = this.getCurrentProduct();
+    return product?.price ?? this.defaultPrice;
   }
 
-  private get currentStock(): number {
-    return this.currentProduct?.number ?? 999;
+  private getCurrentStock(): number {
+    const product = this.getCurrentProduct();
+    return product?.number ?? 999;
   }
 
-  private get currentSpecText(): string {
-    const specs = this.currentProduct?.specifications || [];
-    console.log('currentSpecText - specs:', JSON.stringify(specs))
+  private getCurrentSpecText(): string {
+    const product = this.getCurrentProduct();
+    const specs = product?.specifications || [];
+    console.log('getCurrentSpecText - specs:', JSON.stringify(specs))
     if (specs.length === 0) {
       return '请选择规格';
     }
@@ -55,30 +71,41 @@ export struct AddToCartDialog {
   }
 
   private selectProduct(index: number): void {
-    console.log('selectProduct - index:', index, 'productList.length:', this.productList.length)
-    if (index >= 0 && index < this.productList.length) {
+    console.log('selectProduct - index:', index, 'localProductList.length:', this.localProductList.length)
+    if (index >= 0 && index < this.localProductList.length) {
       this.selectedProductIndex = index;
       this.quantity = 1;
-      console.log('选中规格:', this.productList[index].specifications)
+      console.log('选中规格:', this.localProductList[index].specifications)
     }
   }
 
   private changeQuantity(delta: number): void {
     let newQty = this.quantity + delta;
     if (newQty < 1) newQty = 1;
-    if (newQty > this.currentStock) {
-      this.prompt.showToast({ message: `库存不足，仅剩 ${this.currentStock} 件` });
+    if (newQty > this.getCurrentStock()) {
+      this.prompt.showToast({ message: `库存不足，仅剩 ${this.getCurrentStock()} 件` });
       return;
     }
     this.quantity = newQty;
   }
 
   private async handleAddToCart(): Promise<void> {
-    const product = this.currentProduct;
+    console.log('handleAddToCart - 开始执行')
+    console.log('handleAddToCart - localProductList.length:', this.localProductList.length)
+    console.log('handleAddToCart - selectedProductIndex:', this.selectedProductIndex)
+    console.log('handleAddToCart - localProductList:', JSON.stringify(this.localProductList))
+
+    const product = this.getCurrentProduct();
     console.log('handleAddToCart - product:', JSON.stringify(product))
     console.log('handleAddToCart - product.id:', product?.id)
     console.log('handleAddToCart - goodsId:', this.goodsId)
     console.log('handleAddToCart - quantity:', this.quantity)
+
+    if (this.localProductList.length === 0) {
+      console.log('handleAddToCart - localProductList为空')
+      this.prompt.showToast({ message: '该商品暂无规格' });
+      return;
+    }
 
     if (!product || !product.id) {
       console.log('handleAddToCart - 产品无效，显示提示')
@@ -120,7 +147,7 @@ export struct AddToCartDialog {
   }
 
   private async handleFastBuy(): Promise<void> {
-    const product = this.currentProduct;
+    const product = this.getCurrentProduct();
     if (!product || !product.id) {
       this.prompt.showToast({ message: '请先选择规格' });
       return;
@@ -132,7 +159,7 @@ export struct AddToCartDialog {
     }
 
     try {
-      const params: addCartParams = {
+      const params: fastAddParams = {
         goodsId: this.goodsId,
         productId: product.id,
         number: this.quantity
@@ -184,10 +211,53 @@ export struct AddToCartDialog {
       .padding({ left: 20, right: 20 })
 
       Scroll() {
-        Column({ space: 24 }) {
+        Column({ space: 16 }) {
+          // 商品信息展示区域
+          Row({ space: 12 }) {
+            // 商品图片
+            Image(this.goodsPicUrl || this.getCurrentProduct()?.url || '')
+              .width(80)
+              .height(80)
+              .borderRadius(8)
+              .objectFit(ImageFit.Cover)
+              .backgroundColor('#f5f5f7')
+
+            Column({ space: 4 }) {
+              // 商品名称
+              Text(this.goodsName || '商品名称')
+                .fontSize(14)
+                .fontColor('#1d1d1f')
+                .maxLines(2)
+                .textOverflow({ overflow: TextOverflow.Ellipsis })
+
+              // 当前规格
+              Text(this.getCurrentSpecText())
+                .fontSize(12)
+                .fontColor('#86868b')
+
+              // 价格和库存
+              Row({ space: 8 }) {
+                Text(`¥${this.getCurrentPrice().toFixed(2)}`)
+                  .fontSize(18)
+                  .fontColor('#ff3b30')
+                  .fontWeight(600)
+
+                Text(`库存 ${this.getCurrentStock()} 件`)
+                  .fontSize(12)
+                  .fontColor('#86868b')
+              }
+            }
+            .alignItems(HorizontalAlign.Start)
+            .layoutWeight(1)
+          }
+          .width('100%')
+          .padding(16)
+          .backgroundColor('#f9f9f9')
+          .borderRadius(12)
+
           // 规格选择
-          if (this.productList.length > 0) {
-            Column({ space: 8 }) {
+          if (this.localProductList.length > 0) {
+            Column({ space: 12 }) {
               Text('规格')
                 .fontSize(15)
                 .fontWeight(500)
@@ -195,7 +265,7 @@ export struct AddToCartDialog {
                 .lineHeight(20)
 
               Flex({ wrap: FlexWrap.Wrap, justifyContent: FlexAlign.Start }) {
-                ForEach(this.productList, (product: Product, index: number) => {
+                ForEach(this.localProductList, (product: Product, index: number) => {
                   Text(product.specifications?.join(' ') || '')
                     .fontSize(14)
                     .fontColor(this.selectedProductIndex === index ? '#ffffff' : '#1d1d1f')
@@ -207,6 +277,7 @@ export struct AddToCartDialog {
               }
             }
             .alignItems(HorizontalAlign.Start)
+            .width('100%')
           } else {
             Text('暂无规格可选')
               .fontSize(14)
@@ -215,17 +286,20 @@ export struct AddToCartDialog {
           }
 
           // 数量
-          Column({ space: 8 }) {
+          Row() {
             Text('数量')
               .fontSize(15)
               .fontWeight(500)
               .fontColor('#1d1d1f')
               .lineHeight(20)
 
+            Blank()
+
             Row({ space: 0 }) {
-              Button('-')
+              Text('-')
+                .textAlign(TextAlign.Center)
                 .fontSize(20)
-                .fontColor('#ff0c0c1f')
+                .fontColor('#1d1d1f')
                 .backgroundColor('#f5f5f7')
                 .width(32)
                 .height(32)
@@ -235,24 +309,24 @@ export struct AddToCartDialog {
               Text(this.quantity.toString())
                 .fontSize(15)
                 .fontColor('#1d1d1f')
-                .width(40)
+                .width(48)
                 .textAlign(TextAlign.Center)
                 .height(32)
 
-              Button('+')
+              Text('+')
+                .textAlign(TextAlign.Center)
                 .fontSize(20)
-                .fontWeight(FontWeight.Bolder)
-                .fontColor('#86868b')
+                .fontColor('#1d1d1f')
+                .backgroundColor('#f5f5f7')
                 .width(32)
                 .height(32)
                 .borderRadius(8)
                 .onClick(() => this.changeQuantity(1))
             }
-            .width(104)
           }
-          .alignItems(HorizontalAlign.Start)
+          .width('100%')
         }
-        .padding(20)
+        .padding(16)
       }
       .layoutWeight(1)
       .scrollBar(BarState.Off)
@@ -265,8 +339,8 @@ export struct AddToCartDialog {
           .fontColor('#ffffff')
           .layoutWeight(1)
           .height(44)
-          .backgroundColor('#0071e3')
-          .borderRadius(10)
+          .backgroundColor('#ff9500')
+          .borderRadius(22)
           .enabled(!this.isLoading)
           .onClick(() => this.handleAddToCart())
 
@@ -276,15 +350,15 @@ export struct AddToCartDialog {
           .fontColor('#ffffff')
           .layoutWeight(1)
           .height(44)
-          .backgroundColor('#0071e3')
-          .borderRadius(10)
+          .backgroundColor('#ff3b30')
+          .borderRadius(22)
           .onClick(() => this.handleFastBuy())
       }
-      .padding({ left: 20, right: 20, bottom: 12, top: 12 })
+      .padding({ left: 16, right: 16, bottom: 16, top: 12 })
     }
     .width('100%')
-    .height(440)
+    .height(560)
     .backgroundColor(Color.White)
-    .borderRadius(20)
+    .borderRadius({ topLeft: 20, topRight: 20 })
   }
 }

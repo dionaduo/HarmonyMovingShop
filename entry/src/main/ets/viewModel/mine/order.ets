@@ -1,12 +1,12 @@
 // api/order/order.ts
 export interface OrderSubmitParams {
-  cartId: number
-  addressId: number
-  couponId?: number
-  userCouponId?: number
-  grouponRulesId?: number
-  grouponLinkId?: number
-  message?: string
+  cartId: string
+  addressId: string
+  couponId: string
+  userCouponId: string
+  grouponRulesId: number
+  grouponLinkId: number
+  message: string
 }
 
 export interface OrderSubmit {

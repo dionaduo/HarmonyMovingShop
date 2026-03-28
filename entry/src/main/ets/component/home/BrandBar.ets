@@ -8,8 +8,6 @@ import { loadData } from '../../api';
 export struct BrandBar {
   @State brand: Array<Brand> = []
 
-  private router = this.getUIContext().getRouter()
-
   async aboutToAppear(): Promise<void> {
     this.brand = await loadData(this.brand, 'brandList');
   }
@@ -20,7 +18,8 @@ export struct BrandBar {
       // 头部标题
       header({
         head: '品牌商直供',
-        moreHead: '更多品牌商'
+        moreHead: '更多品牌商',
+        moreHeadUrl: 'pages/BrandListPage'
       })
 
       // 品牌网格
@@ -49,7 +48,7 @@ export struct BrandBar {
             })
             .backgroundColor(Color.White)
             .onClick(()=>{
-              this.router.pushUrl({
+              this.getUIContext().getRouter().pushUrl({
                 url: 'view/home/BrandDetailPage',
                 params: {
                   id: item.id

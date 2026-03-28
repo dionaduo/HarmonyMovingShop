@@ -1,5 +1,5 @@
 import {
-  deleteCart, getCartList, updateCart
+  checkedCart, deleteCart, getCartList, updateCart
 } from '../../api/cart/cart'
 import { ApiResponse, NoApi } from '../../viewModel'
 import { CartItem, CartList,
@@ -94,6 +94,21 @@ export struct GoodsCart {
       if (res.errno === 0) {
         item.number = newNumber
         this.updateTotalAndCount()
+
+        // 数量变化后,如果商品已选中,需要调用 checked 接口
+        if (item.checked) {
+          try {
+            const checkRes = await checkedCart({
+              productIds: [item.productId],
+              isChecked: 1
+            })
+            if (checkRes.errno !== 0) {
+              console.error('更新选中状态失败', checkRes.errmsg)
+            }
+          } catch (error) {
+            console.error('更新选中状态失败', error)
+          }
+        }
       } else {
         this.prompt.showToast({ message: '更新数量失败' })
         await this.fetchCartList() // 回滚
@@ -106,18 +121,61 @@ export struct GoodsCart {
   }
 
   // 单选
-  private toggleItem(item: CartItem): void {
+  private async toggleItem(item: CartItem): Promise<void> {
     item.checked = !item.checked
     this.updateTotalAndCount()
+
+    // 调用 checked 接口更新选中状态
+    try {
+      const res = await checkedCart({
+        productIds: [item.productId],
+        isChecked: item.checked ? 1 : 0
+      })
+      if (res.errno !== 0) {
+        console.error('更新选中状态失败', res.errmsg)
+        // 回滚
+        item.checked = !item.checked
+        this.updateTotalAndCount()
+      }
+    } catch (error) {
+      console.error('更新选中状态失败', error)
+      // 回滚
+      item.checked = !item.checked
+      this.updateTotalAndCount()
+    }
   }
 
   // 全选
-  private toggleAll(): void {
+  private async toggleAll(): Promise<void> {
     const newVal = !this.cartList.every((item: CartItem) => item.checked)
     this.cartList.forEach((item: CartItem) => {
       item.checked = newVal
     })
     this.updateTotalAndCount()
+
+    // 调用 checked 接口更新选中状态
+    try {
+      const productIds = this.cartList.map((item: CartItem) => item.productId)
+      const res = await checkedCart({
+        productIds: productIds,
+        isChecked: newVal ? 1 : 0
+      })
+      if (res.errno !== 0) {
+        console.error('更新选中状态失败', res.errmsg)
+        // 回滚
+        this.cartList.forEach((item: CartItem) => {
+          item.checked = !newVal
+        })
+        this.updateTotalAndCount()
+      }
+    } catch (error) {
+      console.error('更新选中状态失败', error)
+      // 回滚
+      this.cartList.forEach((item: CartItem) => {
+        item.checked = !newVal
+      })
+      this.updateTotalAndCount()
+    }
   }
 
   // 删除单个（编辑模式）
@@ -181,10 +239,10 @@ export struct GoodsCart {
       .map((item: CartItem) => item.id)
 
     try {
-      // 跳转到确认订单页,传递 cartIds 参数
+      // 跳转到确认订单页,传递 cartIds 数组
       this.router.pushUrl({
         url: 'view/mine/CheckoutPage',
-        params: { cartIds: cartIds.join(',') }
+        params: { cartIds: cartIds }
       })
         .catch((err:string) => console.error('跳转结算页面失败:', err))
     } catch (error) {
@@ -371,9 +429,14 @@ export struct GoodsCart {
         // 购物车列表
         Scroll() {
           Column() {
+            List(){
               ForEach(this.cartList, (item: CartItem) => {
-                this.buildCartItem(item)
+                ListItem(){
+                  this.buildCartItem(item)
+                }
               })
+            }.height('100%')
+
           }
           .justifyContent(FlexAlign.Start)
           .height('100%')

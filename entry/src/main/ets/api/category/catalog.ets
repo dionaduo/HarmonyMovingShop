@@ -25,6 +25,6 @@ export const getSubCategoryDetail = (
 // 获取子分类下的商品列表（分页）
 export interface subCategoryInterface { categoryId: number;page: number;limit: number; }
 
-export const getSubCategoryGoods = (params: subCategoryInterface): Promise<ApiResponse<PageList<GoodsItem[]>>> => {
+export const getSubCategoryGoods = (params: subCategoryInterface): Promise<ApiResponse<PageList<GoodsItem>>> => {
   return httpRequest.get("goods/list", { params });
 };

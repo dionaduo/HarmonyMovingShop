@@ -2,6 +2,7 @@
 export struct header {
   @Prop head:string =''
   @Prop moreHead:string =''
+  @Prop moreHeadUrl:string =''
 
   build() {
     Row() {
@@ -18,7 +19,15 @@ export struct header {
             .width(14)
             .objectFit(ImageFit.Contain)
             .padding({ bottom: 1 })
-        }
+        }.onClick(() => {
+          if (this.moreHeadUrl) {
+            this.getUIContext().getRouter().pushUrl({
+              url: this.moreHeadUrl
+            }).catch((err: string) => {
+              console.log('跳转失败,错误信息:' + err)
+            })
+          }
+        })
       }
     }.width('100%').height(20)
     .justifyContent(FlexAlign.SpaceBetween)

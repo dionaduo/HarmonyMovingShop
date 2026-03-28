@@ -86,11 +86,11 @@ export struct subCategory {
         limit: this.limit
       }
 
-      const resp: ApiResponse<PageList<GoodsItem[]>> = await getSubCategoryGoods(params)
-      const data = resp.data || {} as PageList<GoodsItem[]>
+      const resp: ApiResponse<PageList<GoodsItem>> = await getSubCategoryGoods(params)
+      const data = resp.data || {} as PageList<GoodsItem>
 
       if (isRefresh) {
-        this.goodsList = data.list || []
+        this.goodsList = data.list
       } else {
         this.goodsList = [...this.goodsList, ...(data.list || [])]
       }

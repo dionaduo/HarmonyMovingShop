@@ -13,8 +13,6 @@ export struct GrouponBar {
     this.groupon = await loadData(this.groupon, 'grouponList');
   }
 
-  private hotGoodsRouter = this.getUIContext().getRouter()
-
   @Builder
   buildGrouponItem(item: Groupon) {
     Row({ space: 8 }) {
@@ -93,7 +91,7 @@ export struct GrouponBar {
     .border({ width: 1, color: Color.Gray, radius: 8 })
     .backgroundColor(Color.White)
     .onClick(() => {
-      this.hotGoodsRouter.pushUrl({
+      this.getUIContext().getRouter().pushUrl({
         url: 'view/goods/GoodsDetailPage',
         params: { id: item.id } as GoodsItem
       }).catch((err: string) => {
@@ -106,14 +104,17 @@ export struct GrouponBar {
     Column(){
       header({
         head:'团购专区',
-        moreHead:'更多团购商品'
+        moreHead:'更多团购商品',
+        moreHeadUrl: 'pages/GrouponPage'
       })
 
-      Row(){
+      Column(){
         ForEach(this.groupon, (item: Groupon, index: number) => {
-          this.buildGrouponItem(item);
+          Row({space:5}){
+            this.buildGrouponItem(item);
+          }.height(100)
         })
-      }.height(110).padding({top:5})
+      }.padding({top:5})
     }.width('100%').padding(10)
   }
 }

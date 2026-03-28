@@ -43,21 +43,45 @@ export interface DeleteCartParams {
 }
 
 export interface CheckoutParams {
-  cartIds: string
+  cartId: string  // 多个cartId用逗号分隔,如 "1,2,3"
   addressId?: number
   couponId?: number
+  userCouponId?: number
+  grouponRulesId?: number
 }
 
 export interface Checkout {
-    orderTotalPrice: number
-    goodsTotalPrice: number
-    freightPrice: number
-    couponPrice: number
-    actualPrice: number
-    checkedGoodsList: CartItem[]
-    checkedAddress: string
-    availableCouponLength: number
+  grouponRulesId: number
+  actualPrice: number
+  orderTotalPrice: number
+  cartId: number
+  userCouponId: number
+  couponId: number
+  goodsTotalPrice: number
+  addressId: number
+  grouponPrice: number
+  checkedAddress: AddressItem
+  couponPrice: number
+  availableCouponLength: number
+  freightPrice: number
+  checkedGoodsList: CartItem[]
+}
 
+export interface AddressItem {
+  id: number
+  name: string
+  userId: number
+  province: string
+  city: string
+  county: string
+  addressDetail: string
+  areaCode: string
+  postalCode: string
+  tel: string
+  isDefault: boolean
+  addTime: string
+  updateTime: string
+  deleted: boolean
 }
 
 export  interface AddCart{

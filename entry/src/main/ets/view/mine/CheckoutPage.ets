@@ -1,8 +1,7 @@
 import { checkoutCart } from '../../api/cart/cart'
 import { getAddressList } from '../../api/address/address'
 import { ApiResponse } from '../../viewModel'
-import { CartItem, Checkout } from '../../viewModel/cart/cart'
-import { AddressItem } from '../../viewModel/address/address'
+import { AddressItem, CartItem, Checkout } from '../../viewModel/cart/cart'
 import { OrderDetail, OrderInfo, OrderSubmitParams } from '../../viewModel/mine/order'
 import { OrderParams } from '../../viewModel/mine/mine'
 import { submitOrder } from '../../api/mine/order'
@@ -11,36 +10,46 @@ import { submitOrder } from '../../api/mine/order'
 @Component
 export struct CheckoutPage {
   @State checkoutData: Checkout | null = null
-  @State addressList: AddressItem[] = [] as AddressItem[]
+  @State addressList: AddressItem[] = []
   @State selectedAddressId: number | null = null
   @State selectedCouponId: number | null = null
   @State message: string = ''
-  @State cartIdsStr: string = ''
+  @State cartId: string = ''  // 改为字符串类型,支持多个cartId
   @State isSubmitting: boolean = false
   @State addressDialogController: CustomDialogController | null = null
   private router = this.getUIContext().getRouter()
 
   aboutToAppear(): void {
     const params = this.getUIContext().getRouter().getParams() as Record<string, Object>
-    this.cartIdsStr = (params?.cartIds as string) || ''
-    if (this.cartIdsStr) {
+
+    // 判断是从购物车结算还是立即购买
+    if (params?.cartId) {
+      // 立即购买场景 - 单个 cartId
+      this.cartId = params.cartId.toString()
+      console.log('立即购买 - cartId:', this.cartId)
+    } else if (params?.cartIds) {
+      // 购物车结算场景 - 多个 cartId
+      const cartIds = (params.cartIds as number[]) || []
+      if (cartIds.length > 0) {
+        this.cartId = cartIds.join(',')  // 多个cartId用逗号分隔
+        console.log('购物车结算 - cartIds:', cartIds, '合并后的 cartId:', this.cartId)
+      }
+    }
+
+    if (this.cartId) {
       this.loadCheckoutData()
     }
   }
 
   private async loadCheckoutData(): Promise<void> {
     try {
-      const res: ApiResponse<Checkout> = await checkoutCart({ cartIds: this.cartIdsStr })
+      const res: ApiResponse<Checkout> = await checkoutCart({ cartId: this.cartId })
+      console.log('结算数据响应:', JSON.stringify(res))
       if (res.errno === 0 && res.data) {
         this.checkoutData = res.data
-        // checkedAddress 是字符串类型，需要解析
+        // checkedAddress 是对象类型，直接使用
         if (res.data.checkedAddress) {
-          try {
-            const addressData = JSON.parse(res.data.checkedAddress) as AddressItem
-            this.selectedAddressId = addressData.id
-          } catch (parseError) {
-            console.error('解析地址数据失败:', parseError)
-          }
+          this.selectedAddressId = res.data.checkedAddress.id
         }
       }
       // 同时获取地址列表用于弹窗选择
@@ -61,15 +70,20 @@ export struct CheckoutPage {
     this.isSubmitting = true
 
     const params: OrderSubmitParams = {
-      cartId: 0,
-      addressId: this.selectedAddressId,
-      couponId: this.selectedCouponId ?? 0,
-      userCouponId: 0,
+      cartId: '0',
+      addressId: this.selectedAddressId.toString(),
+      couponId: this.selectedCouponId?.toString() || '0',
+      userCouponId: '0',
+      grouponRulesId: 0,
+      grouponLinkId: 0,
       message: this.message
     }
 
+    console.log('提交订单参数:', JSON.stringify(params))
+
     try {
       const res = await submitOrder(params)
+      console.log('提交订单响应:', JSON.stringify(res))
       if (res.errno === 0 && res.data) {
         this.router.pushUrl({ url: 'pages/PaymentPage', params: { orderId: res.data.orderId } })
       } else {
@@ -229,9 +243,10 @@ export struct CheckoutPage {
             .backgroundColor(Color.White)
             .borderRadius(12)
             .onChange((val) => this.message = val)
-        }
+        }.height('100%')
+        .justifyContent(FlexAlign.Start)
         .padding(12)
-      }
+      }.height('100%')
       .layoutWeight(1)
 
       // 底部栏
@@ -267,12 +282,7 @@ export struct CheckoutPage {
     if (!this.checkoutData?.checkedAddress) {
       return '请选择收货地址'
     }
-    try {
-      const addressData = JSON.parse(this.checkoutData.checkedAddress) as AddressItem
-      return `${addressData.name} ${addressData.tel} ...`
-    } catch (e) {
-      console.error('解析地址数据失败:', e)
-      return '请选择收货地址'
-    }
+    const addressData = this.checkoutData.checkedAddress
+    return `${addressData.name} ${addressData.tel} ...`
   }
 }

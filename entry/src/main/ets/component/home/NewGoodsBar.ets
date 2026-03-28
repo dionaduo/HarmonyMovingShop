@@ -11,13 +11,12 @@ export struct NewGoodsBar {
     this.newGoods = await loadData(this.newGoods, 'newGoodsList');
   }
 
-  private hotGoodsRouter = this.getUIContext().getRouter()
-
   build() {
     Column() {
       header({
         head: '新品首发',
-        moreHead: '更多新品首发'
+        moreHead: '更多新品首发',
+        moreHeadUrl: 'pages/NewGoodsPage'
       })
       Grid() {
         ForEach(this.newGoods, (item: GoodsItem, index: number) => {
@@ -28,7 +27,7 @@ export struct NewGoodsBar {
               retailPrice:item.retailPrice
             })
             .onClick(() => {
-              this.hotGoodsRouter.pushUrl({
+              this.getUIContext().getRouter().pushUrl({
                 url: 'view/goods/GoodsDetailPage',
                 params: { id: item.id } as GoodsItem
               }).catch((err: string) => {

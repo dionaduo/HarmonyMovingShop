@@ -12,14 +12,14 @@ export struct HotGoodsBar{
   async aboutToAppear(): Promise<void> {
     this.hotGoods = await loadData(this.hotGoods, 'hotGoodsList');
   }
-  private hotGoodsRouter = this.getUIContext().getRouter()
 
 
   build() {
     Column(){
       header({
         head:'人气推荐',
-        moreHead:'更多人气推荐'
+        moreHead:'更多人气推荐',
+        moreHeadUrl: 'pages/HotGoodsPage'
       })
 
       List(){
@@ -32,7 +32,7 @@ export struct HotGoodsBar{
               goodsCurPrice:item.counterPrice,
               goodsRealPrice:item.retailPrice
             }).onClick(()=>{
-              this.hotGoodsRouter.pushUrl({
+              this.getUIContext().getRouter().pushUrl({
                 url: 'view/goods/GoodsDetailPage',
                 params: { id:item.id } as GoodsItem
               }).catch((err: string) => {

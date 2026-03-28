@@ -4,7 +4,7 @@ import { goodsTabBar } from './goodsTabBar';
 import { AttributeDialog } from './AttributeDialog';
 import { AddToCartDialog } from './AddToCartDialog'; // 新增
 import { Prompt } from '@kit.ArkUI';
-import { addToCart } from '../../api/cart/cart';
+import { addToCart, fastAddToCart } from '../../api/cart/cart';
 
 @Component
 export struct goodsDetail {
@@ -78,19 +78,19 @@ export struct goodsDetail {
     if (!this.detail.info?.id) return;
 
     try {
-      const res = await addToCart({
+      const res = await fastAddToCart({
         goodsId: this.detail.info.id,
         productId: productId,
         number: quantity
       });
       console.log('立即购买的返回数据:' + JSON.stringify(res))
 
-      if (res.errno === 0) {
+      if (res.errno === 0 && res.data) {
         this.addToCartDialogController?.close();
         this.goodsRouter.pushUrl({
           url: 'view/mine/CheckoutPage',
           params: {
-            cartId: res.data.goodsId
+            cartId: res.data  // cartId 是数字
           }
         }).catch((err: string) => console.error('跳转结算页面失败:', err))
       } else {
@@ -114,6 +114,8 @@ export struct goodsDetail {
         productList: this.detail.productList || [],
         goodsId: this.detail.info?.id || 0,
         defaultPrice: this.detail.info?.retailPrice || 0,
+        goodsName: this.detail.info?.name || '',
+        goodsPicUrl: this.detail.info?.picUrl || '',
         onAddToCart: (productId: number, quantity: number) => this.handleAddToCart(productId, quantity),
         onFastBuy: (productId: number, quantity: number) => this.handleFastBuy(productId, quantity)
       }),
@@ -155,7 +157,7 @@ export struct goodsDetail {
                 .onClick(() => this.goodsRouter.back())
             }.width('20%')
 
-            Text().width('80%').height(30).backgroundColor(Color.White)
+            Text().width('80%').height(30).backgroundColor(Color.Transparent)
           }
           .justifyContent(FlexAlign.Center)
           .position({ top: 0 })

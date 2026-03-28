@@ -16,6 +16,15 @@ export const deleteCart = (data: DeleteCartParams): Promise<ApiResponse<CartList
   return httpRequest.post('cart/delete', data)
 }
 
+interface GeneratedTypeLiteralInterface_1 {
+  productIds: number[];
+  isChecked: number;
+}
+
+export const checkedCart = (data: GeneratedTypeLiteralInterface_1): Promise<ApiResponse<CartList>> => {
+  return httpRequest.post('cart/checked', data)
+}
+
 export const checkoutCart = (params: CheckoutParams): Promise<ApiResponse<Checkout>> => {
   return httpRequest.get('cart/checkout', { params })
 }
@@ -58,7 +67,13 @@ interface CartID {
  * @param data 立即购买参数
  * @description POST请求 - 直接购买，快速加入购物车并跳转结算
  */
-export const fastAddToCart = (data: addCartParams): Promise<ApiResponse<number>> => {
+export interface fastAddParams {
+  goodsId: number;
+  number: number;
+  productId: number;
+}
+
+export const fastAddToCart = (data: fastAddParams): Promise<ApiResponse<number>> => {
   return httpRequest({
     url: 'cart/fastadd',
     method: 'POST',
