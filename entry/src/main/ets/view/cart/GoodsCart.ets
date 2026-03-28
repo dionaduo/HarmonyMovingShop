@@ -6,6 +6,7 @@ import { CartItem, CartList,
   Checkout,
   CheckoutParams, DeleteCartParams, UpdateCartParams } from '../../viewModel/cart/cart'
 import { Prompt} from '@kit.ArkUI'
+import PreferencesUtil from '../../utils/PreferencesUtil'
 
 @Component
 export struct GoodsCart {
@@ -16,12 +17,27 @@ export struct GoodsCart {
   @State isEditMode: boolean = false
   @State totalPrice: number = 0
   @State selectedCount: number = 0
+  @State isLoggedIn: boolean = false
   private  router = this.getUIContext().getRouter()
   private prompt = this.getUIContext().getPromptAction()
   @State private deleteProductIds: number[] = []
 
   aboutToAppear(): void {
-    this.fetchCartList()
+    this.checkLoginStatus()
+  }
+
+  onPageShow(): void {
+    this.checkLoginStatus()
+  }
+
+  async checkLoginStatus(): Promise<void> {
+    const token = await PreferencesUtil.getToken()
+    this.isLoggedIn = !!token
+    if (this.isLoggedIn) {
+      this.fetchCartList()
+    } else {
+      this.loading = false
+    }
   }
 
   // 获取购物车
@@ -29,6 +45,7 @@ export struct GoodsCart {
     this.loading = true
     try {
       const res: ApiResponse<CartList> = await getCartList()
+      console.log('购物车列表' + JSON.stringify(res.data.cartList))
       if (res.errno === 0) {
         this.cartList = res.data.cartList || []
         // 初始化 checked（后端不返回时默认 false）
@@ -36,9 +53,14 @@ export struct GoodsCart {
           item.checked = item.checked ?? false
         })
         this.updateTotalAndCount()
+      } else if (res.errno === 501) {
+        this.isLoggedIn = false
+        this.cartList = []
+        this.prompt.showToast({ message: '请先登录' })
       }
     } catch (error) {
-      console.error('获取购物车失败')
+      console.error('获取购物车失败', error)
+      this.prompt.showToast({ message: '获取购物车失败' })
     } finally {
       this.loading = false
       this.refreshing = false
@@ -73,9 +95,13 @@ export struct GoodsCart {
       if (res.errno === 0) {
         item.number = newNumber
         this.updateTotalAndCount()
+      } else {
+        this.prompt.showToast({ message: '更新数量失败' })
+        await this.fetchCartList() // 回滚
       }
     } catch (error) {
-      console.error('更新数量失败')
+      console.error('更新数量失败', error)
+      this.prompt.showToast({ message: '网络请求失败' })
       await this.fetchCartList() // 回滚
     }
   }
@@ -110,23 +136,39 @@ export struct GoodsCart {
     this.showDeleteDialog()
   }
 
-  // 删除确认弹窗（简单模拟，使用 prompt 或自定义 Dialog，这里用内置 prompt）
+  // 删除确认弹窗
   private showDeleteDialog(): void {
-    this.prompt.openToast({
+    this.prompt.showDialog({
       message: '确定删除选中商品？',
-    }).then(async (index: number) => {
-      if (index === 1) {
-        try {
-          const params: DeleteCartParams = { productIds: this.deleteProductIds }
-          const res = await deleteCart(params)
-          if (res.productIds) {
-            this.fetchCartList()
-          }
-        } catch (error) {
-          console.error('删除失败')
-        }
+      buttons: [
+        { text: '取消', color: '#999999' },
+        { text: '确定', color: '#ee0a24' }
+      ]
+    }, (err,data) => {
+      if (err) {
+        console.error(`showDialog args error is ${JSON.stringify(err)}`);
+      } else if (data.index === 1) {
+        // 点击确定
+        this.handleDelete()
       }
     })
+  }
+
+  // 执行删除
+  private async handleDelete(): Promise<void> {
+    try {
+      const params: DeleteCartParams = { productIds: this.deleteProductIds }
+      const res = await deleteCart(params)
+      if (res.productIds.length === 0) {
+        this.prompt.showToast({ message: '删除成功' })
+        await this.fetchCartList()
+      } else {
+        this.prompt.showToast({ message: '删除失败' })
+      }
+    } catch (error) {
+      console.error('删除失败', error)
+      this.prompt.showToast({ message: '网络请求失败' })
+    }
   }
 
   // 去结算
@@ -143,180 +185,257 @@ export struct GoodsCart {
       const params: CheckoutParams = { cartIds: cartIds.join(',') }
       const res: ApiResponse<Checkout> = await checkoutCart(params) // 实际返回 Checkout
       if (res.errno === 0) {
-        // 跳转到确认订单页（根据实际路由框架替换）
-        this.router.pushUrl({ url: '/pages/checkout' })
+        // 跳转到确认订单页
+        this.router.pushUrl({ url: 'view/mine/CheckoutPage' })
+          .catch((err:string) => console.error('跳转结算页面失败:', err))
+      } else {
+        this.prompt.showToast({ message: res.errmsg || '结算失败' })
       }
     } catch (error) {
-      console.error('结算失败')
+      console.error('结算失败', error)
+      this.prompt.showToast({ message: '网络请求失败' })
     }
   }
 
+  @Builder
+  buildEmptyCart() {
+    Column() {
+      Image($r('app.media.startIcon'))
+        .width(120)
+        .height(120)
+        .opacity(0.3)
+        .margin({ bottom: 16 })
+      Text('购物车还是空的')
+        .fontSize(16)
+        .fontColor('#999999')
+        .margin({ bottom: 24 })
+      Button('去逛逛')
+        .fontSize(16)
+        .fontColor(Color.White)
+        .backgroundColor('#ff6bbfff')
+        .borderRadius(20)
+        .padding({ left: 32, right: 32, top: 12, bottom: 12 })
+        .onClick(() => {
+          this.router.pushUrl({ url: 'pages/Index' })
+            .catch((err:string) => console.error('跳转首页失败:', err))
+        })
+    }
+    .alignItems(HorizontalAlign.Center)
+    .layoutWeight(1)
+  }
 
+  @Builder
+  buildCartItem(item: CartItem) {
+    Row({ space: 12 }) {
+      Checkbox()
+        .select(item.checked)
+        .width(22)
+        .height(22)
+        .onClick(() => this.toggleItem(item))
 
+      Image(item.picUrl)
+        .width(80)
+        .height(80)
+        .borderRadius(8)
+
+      Column({ space: 4 }) {
+        Text(item.goodsName)
+          .fontSize(14)
+          .fontColor('#333333')
+          .maxLines(2)
+          .textOverflow({ overflow: TextOverflow.Ellipsis })
+
+        Text(item.specifications?.join(' ') || '标准规格')
+          .fontSize(12)
+          .fontColor('#999999')
+
+        Row() {
+          Text(`¥${item.price}`)
+            .fontSize(16)
+            .fontColor('#ee0a24')
+            .fontWeight(FontWeight.Medium)
+
+          if (!this.isEditMode) {
+            // 简易步进器
+            Row({ space: 0 }) {
+              Button('-')
+                .fontSize(16)
+                .fontColor('#666666')
+                .backgroundColor(Color.Transparent)
+                .width(28)
+                .height(28)
+                .borderRadius(4)
+                .onClick(() => {
+                  if (item.number > 1) {
+                    this.handleNumberChange(item, item.number - 1)
+                  }
+                })
+
+              Text(`${item.number}`)
+                .fontSize(14)
+                .fontColor('#333333')
+                .width(32)
+                .textAlign(TextAlign.Center)
+
+              Button('+')
+                .fontSize(16)
+                .fontColor('#666666')
+                .backgroundColor(Color.Transparent)
+                .width(28)
+                .height(28)
+                .borderRadius(4)
+                .onClick(() => this.handleNumberChange(item, item.number + 1))
+            }
+            .alignItems(VerticalAlign.Center)
+          } else {
+            Button('删除')
+              .fontSize(14)
+              .fontColor('#ee0a24')
+              .backgroundColor('#f5f5f5')
+              .height(28)
+              .borderRadius(4)
+              .onClick(() => this.handleRemoveItem(item))
+          }
+        }
+        .justifyContent(FlexAlign.SpaceBetween)
+        .width('100%')
+      }
+      .alignItems(HorizontalAlign.Start)
+      .layoutWeight(1)
+    }
+    .alignItems(VerticalAlign.Center)
+    .padding(12)
+    .backgroundColor('#ffffff')
+    .borderRadius(8)
+    .margin({ bottom: 8 })
+  }
 
   build() {
     Column() {
-      // 导航栏 - 修正为链式调用
+      // 导航栏
       Row() {
         Text('购物车')
           .fontSize(18)
           .fontWeight(FontWeight.Medium)
+          .fontColor('#333333')
           .layoutWeight(1)
 
         Text(this.isEditMode ? '完成' : '编辑')
           .fontSize(16)
-          .fontColor('#ee0a24')
+          .fontColor('#666666')
           .onClick(() => {
             this.isEditMode = !this.isEditMode
           })
       }
-      .alignItems(VerticalAlign.Center) // 正确规范写法
+      .alignItems(VerticalAlign.Center)
       .height(56)
       .width('100%')
       .padding({ left: 16, right: 16 })
       .backgroundColor('#ffffff')
 
-      // 内容区
-      if (this.loading) {
+      if (!this.isLoggedIn) {
+        // 未登录状态
+        Column() {
+          Image($r('app.media.startIcon'))
+            .width(120)
+            .height(120)
+            .opacity(0.3)
+            .margin({ bottom: 16 })
+          Text('请先登录')
+            .fontSize(16)
+            .fontColor('#999999')
+            .margin({ bottom: 24 })
+          Button('去登录')
+            .fontSize(16)
+            .fontColor(Color.White)
+            .backgroundColor('#ff6bbfff')
+            .borderRadius(20)
+            .padding({ left: 32, right: 32, top: 12, bottom: 12 })
+            .onClick(() => {
+              this.router.pushUrl({ url: 'view/login/LoginPage' })
+                .catch((err:string) => console.error('跳转登录页面失败:', err))
+            })
+        }
+        .alignItems(HorizontalAlign.Center)
+        .layoutWeight(1)
+      } else if (this.loading) {
+        // 加载中
         LoadingProgress()
           .width(48)
           .height(48)
+          .color('#ff6bbfff')
           .margin({ top: 100 })
       } else if (this.cartList.length === 0) {
-        // 空购物车 - 修正为链式调用
-        Column() {
-          Image($r('app.media.servicer'))
-            .width(120)
-            .height(120)
-            .margin({ bottom: 16 })
-          Text('购物车还是空的')
-            .fontSize(16)
-            .fontColor('#999999')
-          Button('去逛逛')
-            .type(ButtonType.Normal)
-            .backgroundColor('#ee0a24')
-            .onClick(() => this.router.pushUrl({ url: '/pages/home' }))
-            .margin({ top: 24 })
-        }
-        .alignItems(HorizontalAlign.Center) // 正确规范写法
-        .layoutWeight(1)
+        // 空购物车
+        this.buildEmptyCart()
       } else {
+        // 购物车列表
         Scroll() {
           Column() {
             ForEach(this.cartList, (item: CartItem) => {
-              // 商品项 - 修正为链式调用
-              Row({ space: 12 }) {
-                Checkbox({ })
-                  .onChange(() => this.toggleItem(item))
-                  .width(22)
-                  .height(22)
-
-                Image(item.picUrl)
-                  .width(80)
-                  .height(80)
-                  .borderRadius(8)
-
-                Column({  space: 4 }) {
-                  Text(item.goodsName)
-                    .fontSize(14)
-                    .maxLines(2)
-                    .textOverflow({ overflow: TextOverflow.Ellipsis })
-
-                  Text(item.specifications?.join(' ') || '标准规格')
-                    .fontSize(12)
-                    .fontColor('#999999')
-
-                  Row() {
-                    Text(`¥${item.price}`)
-                      .fontSize(16)
-                      .fontColor('#ee0a24')
-                      .fontWeight(FontWeight.Medium)
-
-                    if (!this.isEditMode) {
-                      // 简易步进器
-                      Row() {
-                        Button('-')
-                          .width(28)
-                          .height(28)
-                          .onClick(() => this.handleNumberChange(item, item.number - 1))
-
-                        Text(`${item.number}`)
-                          .width(40)
-                          .textAlign(TextAlign.Center)
-
-                        Button('+')
-                          .width(28)
-                          .height(28)
-                          .onClick(() => this.handleNumberChange(item, item.number + 1))
-                      }
-                      .alignItems(VerticalAlign.Center) // 正确规范写法
-                    } else {
-                      Button('删除')
-                        .type(ButtonType.Normal)
-                        .backgroundColor('#ffffff')
-                        .fontColor('#ee0a24')
-                        .onClick(() => this.handleRemoveItem(item))
-                    }
-                  }
-                  .alignItems(VerticalAlign.Center) // 正确规范写法
-                }
-                .alignItems(HorizontalAlign.Start)
-                .layoutWeight(1)
-              }
-              .alignItems(VerticalAlign.Center) // 正确规范写法
-              .padding(12)
-              .backgroundColor('#ffffff')
-              .borderRadius(8)
-              .margin({ bottom: 8 })
+              this.buildCartItem(item)
             })
           }
           .padding(12)
         }
+        .scrollBar(BarState.Off)
         .layoutWeight(1)
       }
 
-      // 底部栏 - 修正为链式调用
+      // 底部栏
       if (this.cartList.length > 0) {
         Row() {
-          // 全选 - 修正为链式调用
+          // 全选
           Row({ space: 8 }) {
             Checkbox()
-              .onChange(() => this.toggleAll())
+              .select(this.cartList.every((item: CartItem) => item.checked))
+              .width(22)
+              .height(22)
+              .onClick(() => this.toggleAll())
             Text('全选')
               .fontSize(14)
+              .fontColor('#333333')
           }
-          .alignItems(VerticalAlign.Center) // 正确规范写法
+          .alignItems(VerticalAlign.Center)
 
           // 价格 / 操作
           if (!this.isEditMode) {
             Text(`合计：¥${this.totalPrice.toFixed(2)}`)
               .fontSize(16)
               .fontColor('#ee0a24')
+              .fontWeight(FontWeight.Medium)
               .layoutWeight(1)
               .textAlign(TextAlign.End)
+              .margin({ right: 12 })
 
             Button(`去结算(${this.selectedCount})`)
-              .type(ButtonType.Normal)
-              .backgroundColor(this.selectedCount > 0 ? '#ee0a24' : '#cccccc')
+              .fontSize(16)
+              .fontColor(Color.White)
+              .backgroundColor('#ff6bbfff')
+              .borderRadius(20)
+              .padding({ left: 20, right: 20, top: 10, bottom: 10 })
               .enabled(this.selectedCount > 0)
               .onClick(() => this.handleCheckout())
           } else {
             Button(`删除(${this.selectedCount})`)
-              .type(ButtonType.Normal)
-              .backgroundColor(this.selectedCount > 0 ? '#ee0a24' : '#cccccc')
+              .fontSize(16)
+              .fontColor(Color.White)
+              .backgroundColor('#ff6bbfff')
+              .borderRadius(20)
+              .padding({ left: 20, right: 20, top: 10, bottom: 10 })
               .enabled(this.selectedCount > 0)
               .onClick(() => this.handleBatchRemove())
           }
         }
-        .alignItems(VerticalAlign.Center) // 正确规范写法
+        .alignItems(VerticalAlign.Center)
         .height(60)
         .padding({ left: 16, right: 16 })
         .backgroundColor('#ffffff')
-        .border({ width: 1, color: '#f0f0f0' })
+        .border({ width: { top: 0.5 }, color: '#f0f0f0' })
       }
     }
     .width('100%')
     .height('100%')
-    .backgroundColor('#f5f5f5')
+    .backgroundColor('#f7f8fa')
   }
 }

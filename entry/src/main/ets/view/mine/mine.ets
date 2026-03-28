@@ -1,17 +1,37 @@
 import { getAddressList } from "../../api/address/address"
 import { getCollectList, getUserInfo, logout } from "../../api/mine/mine"
 import { UserInfo } from "../../viewModel/mine/user"
+import PreferencesUtil from "../../utils/PreferencesUtil"
+import { TokenInfo } from "../../viewModel/mine/mine"
 
 @Component
 export struct mine {
-  @State userInfo: UserInfo | null = null
+  @State userInfo: UserInfo = {} as UserInfo
   @State collectCount: number = 0
   @State addressCount: number = 0
   @State isLoading: boolean = true
+  @State isLoggedIn: boolean = false
+  @State TokenD: TokenInfo = {} as TokenInfo
   private router = this.getUIContext().getRouter()
 
   aboutToAppear(): void {
-    this.loadData()
+    this.checkLoginStatus()
+  }
+
+  onPageShow(): void {
+    this.checkLoginStatus()
+  }
+
+  async checkLoginStatus(): Promise<void> {
+    const token = await PreferencesUtil.getToken()
+    console.log('mine checkLoginStatus - token:', token)
+    this.isLoggedIn = !!token
+    console.log('mine checkLoginStatus - isLoggedIn:', this.isLoggedIn)
+    if (this.isLoggedIn) {
+      this.loadData()
+    } else {
+      this.isLoading = false
+    }
   }
 
   async loadData(): Promise<void> {
@@ -25,8 +45,11 @@ export struct mine {
       const collectRes = LoadData[1];
       const addressRes = LoadData[2];
 
+      console.log('mine loadData - userRes:', JSON.stringify(userRes))
+
       if (userRes.errno === 0) {
         this.userInfo = userRes.data
+        console.log('mine loadData - userInfo:', JSON.stringify(this.userInfo))
       }
       if (collectRes.errno === 0) {
         this.collectCount = collectRes.data.total
@@ -47,7 +70,7 @@ export struct mine {
     Row({ space: 16 }) {
       // 头像
       Stack() {
-        Image(this.userInfo?.avatar || 'default_avatar.png')
+        Image(this.userInfo?.avatarUrl || 'default_avatar.png')
           .width(68)
           .height(68)
           .borderRadius(34)
@@ -63,7 +86,7 @@ export struct mine {
 
       // 用户信息
       Column({ space: 6 }) {
-        Text(this.userInfo?.nickname || '未登录')
+        Text(this.userInfo.nickName)
           .fontSize(22)
           .fontWeight(FontWeight.Bold)
           .fontColor(Color.White)
@@ -98,8 +121,13 @@ export struct mine {
           .fillColor(Color.White)
       }
       .onClick(() => {
-        this.router.pushUrl({ url: 'pages/SettingsPage' })
-          .catch((err:string) => console.error('跳转设置页面失败:', err))
+        if (!this.isLoggedIn) {
+          this.router.pushUrl({ url: 'view/login/LoginPage' })
+            .catch((err:string) => console.error('跳转登录页面失败:', err))
+        } else {
+          this.router.pushUrl({ url: 'pages/SettingsPage' })
+            .catch((err:string) => console.error('跳转设置页面失败:', err))
+        }
       })
     }
     .height(200)
@@ -160,9 +188,9 @@ export struct mine {
       // 订单状态
       Row({ space: 0 }) {
         this.buildOrderItem('待付款', 0, $r('app.media.fukuan'))
-        this.buildOrderItem('待发货', 1, $r('app.media.fahuo'))
-        this.buildOrderItem('待收货', 1, $r('app.media.shouhuo'))
-        this.buildOrderItem('待评价', 1, $r('app.media.pingjia'))
+        this.buildOrderItem('待发货', 0, $r('app.media.fahuo'))
+        this.buildOrderItem('待收货', 0, $r('app.media.shouhuo'))
+        this.buildOrderItem('待评价', 0, $r('app.media.pingjia'))
       }
       .justifyContent(FlexAlign.SpaceAround)
       .padding({ left: 12, right: 12, bottom: 20 })
@@ -318,9 +346,13 @@ export struct mine {
       .onClick(async () => {
         try {
           await logout()
-          this.userInfo = null
+          await PreferencesUtil.deleteToken()
+          this.userInfo = {} as UserInfo
           this.collectCount = 0
           this.addressCount = 0
+          this.isLoggedIn = false
+          this.router.pushUrl({ url: 'view/login/LoginPage' })
+            .catch((err:string) => console.error('跳转登录页面失败:', err))
         } catch (error) {
           console.error('退出登录失败:', error)
         }
@@ -329,11 +361,21 @@ export struct mine {
 
   // ==================== 工具方法 ====================
   private goToOrderList() {
+    if (!this.isLoggedIn) {
+      this.router.pushUrl({ url: 'view/login/LoginPage' })
+        .catch((err:string) => console.error('跳转登录页面失败:', err))
+      return
+    }
     this.router.pushUrl({ url: 'pages/OrderListPage' })
       .catch((err:string) => console.error('跳转订单列表失败:', err))
   }
 
   private handleOrderClick(title: string) {
+    if (!this.isLoggedIn) {
+      this.router.pushUrl({ url: 'view/login/LoginPage' })
+        .catch((err:string) => console.error('跳转登录页面失败:', err))
+      return
+    }
     const statusMap: Record<string, number> = {
       '待付款': 101,
       '待发货': 201,

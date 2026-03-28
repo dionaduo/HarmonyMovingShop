@@ -17,7 +17,7 @@ export const getUserInfo = (): Promise<ApiResponse<UserInfo>> => {
  * 获取收藏列表
  */
 export const getCollectList = (params: OrderParams): Promise<ApiResponse<PageList<CollectItem>>> => {
-  return httpRequest.get('/collect/list', {
+  return httpRequest.get('collect/list', {
     params: {
       type: params.showType !== undefined ? params.showType : 0,
       page: params.page,
@@ -31,14 +31,14 @@ export const getCollectList = (params: OrderParams): Promise<ApiResponse<PageLis
  */
 export const deleteCollect = (valueId: number): Promise<ApiResponse<null>> => {
   const requestData: number = valueId;
-  return httpRequest.post('/collect/delete', requestData);
+  return httpRequest.post('collect/delete', requestData);
 };
 
 /**
  * 获取常见问题列表
  */
 export const getIssueList = (page:number,limit:number,keyword:string): Promise<ApiResponse<PageList<IssueItem>>> => {
-  return httpRequest.get('/issue/list', { params: { page: page, limit: limit, keyword: keyword } });
+  return httpRequest.get('issue/list', { params: { page: page, limit: limit, keyword: keyword } });
 };
 
 
@@ -47,19 +47,19 @@ export const getIssueList = (page:number,limit:number,keyword:string): Promise<A
  */
 
 export const submitFeedback = (params: FeedbackData): Promise<ApiResponse<null>> => {
-  return httpRequest.post('/feedback/submit', params);
+  return httpRequest.post('feedback/submit', params);
 };
 
 /**
  * 退出登录
  */
 export const logout = (): Promise<ApiResponse<null>> => {
-  return httpRequest.post('/auth/logout');
+  return httpRequest.post('auth/logout');
 };
 
 /**
  * 用户登录
  */
 export const login = (params: LoginParams): Promise<ApiResponse<TokenInfo>> => {
-  return httpRequest.post('wx/auth/login', params);
+  return httpRequest.post('auth/login', params);
 };

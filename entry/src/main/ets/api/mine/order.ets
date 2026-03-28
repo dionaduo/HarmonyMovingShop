@@ -1,6 +1,6 @@
 import httpRequest from "../../utils/request"
 import { ApiResponse, NoApi } from "../../viewModel"
-import { OrderDetail, OrderGoodsItem, OrderSubmit, OrderSubmitParams } from "../../viewModel/mine/order"
+import { OrderDetail, OrderGoodsItem, OrderListData, OrderSubmit, OrderSubmitParams } from "../../viewModel/mine/order"
 
 
 // 提交订单
@@ -23,7 +23,7 @@ export const getOrderList = (
   showType: number = 0,
   page: number = 1,
   limit: number = 10
-): Promise<ApiResponse<OrderGoodsItem>> => {
+): Promise<ApiResponse<OrderListData>> => {
   return httpRequest.get('order/list', {
     params: { showType, page, limit }
   })

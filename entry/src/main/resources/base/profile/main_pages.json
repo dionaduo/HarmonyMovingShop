@@ -5,6 +5,8 @@
     "view/category/subCategory",
     "view/home/BrandDetailPage",
     "view/home/searchResult",
-    "view/mine/CheckoutPage"
+    "view/mine/CheckoutPage",
+    "view/login/LoginPage",
+    "pages/OrderListPage"
   ]
 }

@@ -1,9 +1,9 @@
 export interface UserInfo {
   id: number;
-  nickname: string;
+  nickName: string;
   username: string;
   mobile: string;
-  avatar: string;
+  avatarUrl: string;
   gender: number;
   birthday: string;
   points: number;

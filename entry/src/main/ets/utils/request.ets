@@ -1,4 +1,5 @@
 import axios, { AxiosError, AxiosResponse, AxiosResponseTransformer, InternalAxiosRequestConfig } from '@ohos/axios'
+import PreferencesUtil from './PreferencesUtil'
 
 export const httpRequest = axios.create({
   baseURL: 'http://hmapp.net:8080/wx/',
@@ -6,7 +7,11 @@ export const httpRequest = axios.create({
 })
 
 //请求拦截器
-httpRequest.interceptors.request.use((config: InternalAxiosRequestConfig)=>{
+httpRequest.interceptors.request.use(async (config: InternalAxiosRequestConfig)=>{
+  const token = await PreferencesUtil.getToken()
+  if (token) {
+    config.headers['X-Litemall-Token'] = token
+  }
   return config
 },(err:AxiosError)=>{
   return Promise.reject('请求拦截数据失败:'+err)

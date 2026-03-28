@@ -76,3 +76,22 @@ export interface OrderPay {
     payUrl?: string
     mwebUrl?: string
 }
+
+export interface OrderListItem {
+  orderStatusText: string
+  aftersaleStatus: number
+  isGroupin: boolean
+  orderSn: string
+  actualPrice: number
+  goodsList: OrderGoodsItem[]
+  id: number
+  handleOption: HandleOption
+}
+
+export interface OrderListData {
+  total: number
+  pages: number
+  limit: number
+  page: number
+  list: OrderListItem[]
+}

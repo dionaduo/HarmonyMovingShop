@@ -21,7 +21,10 @@ export default class EntryAbility extends UIAbility {
   }
 
   onWindowStageCreate(windowStage: window.WindowStage): void {
-    PreferencesUtil.init(this.context)
+    console.log('EntryAbility onWindowStageCreate')
+    PreferencesUtil.init(this.context).then(() => {
+      console.log('PreferencesUtil initialized')
+    })
     let windowClass: window.Window = windowStage.getMainWindowSync();
     windowClass.setWindowLayoutFullScreen(true);
     let TYPE_SYSTEM = window.AvoidAreaType.TYPE_SYSTEM //系统保留区域（状态栏、导航栏等）

@@ -1,8 +1,5 @@
-import { Prompt } from '@kit.ArkUI';
 import { Product, SpecificationGroup } from '../../viewModel/goods/goodsDetail';
 import { addToCart, fastAddToCart, addCartParams } from '../../api/cart/cart';
-import { ApiResponse } from '../../viewModel';
-// 注意：这里不再需要导入 AddCart，因为 API 返回的是 number
 
 @CustomDialog
 @Component
@@ -18,13 +15,26 @@ export struct AddToCartDialog {
   @State selectedProductIndex: number = 0;
   @State quantity: number = 1;
   @State isLoading: boolean = false;
+  private prompt = this.getUIContext().getPromptAction()
+
+  aboutToAppear(): void {
+    console.log('AddToCartDialog aboutToAppear')
+    console.log('specificationList:', JSON.stringify(this.specificationList))
+    console.log('productList:', JSON.stringify(this.productList))
+    console.log('goodsId:', this.goodsId)
+    console.log('defaultPrice:', this.defaultPrice)
+  }
 
   // 安全获取当前选中规格
-  private get currentProduct(): Product{
+  private get currentProduct(): Product {
+    console.log('currentProduct - productList.length:', this.productList.length, 'selectedProductIndex:', this.selectedProductIndex)
     if (this.productList.length === 0 || this.selectedProductIndex >= this.productList.length) {
+      console.log('currentProduct - 返回空对象')
       return {} as Product;
     }
-    return this.productList[this.selectedProductIndex];
+    const product = this.productList[this.selectedProductIndex];
+    console.log('currentProduct - 返回:', JSON.stringify(product))
+    return product;
   }
 
   private get currentPrice(): number {
@@ -36,13 +46,20 @@ export struct AddToCartDialog {
   }
 
   private get currentSpecText(): string {
-    return this.currentProduct?.specifications?.join(' · ') || '请选择规格';
+    const specs = this.currentProduct?.specifications || [];
+    console.log('currentSpecText - specs:', JSON.stringify(specs))
+    if (specs.length === 0) {
+      return '请选择规格';
+    }
+    return specs.join(' ');
   }
 
   private selectProduct(index: number): void {
+    console.log('selectProduct - index:', index, 'productList.length:', this.productList.length)
     if (index >= 0 && index < this.productList.length) {
       this.selectedProductIndex = index;
       this.quantity = 1;
+      console.log('选中规格:', this.productList[index].specifications)
     }
   }
 
@@ -50,7 +67,7 @@ export struct AddToCartDialog {
     let newQty = this.quantity + delta;
     if (newQty < 1) newQty = 1;
     if (newQty > this.currentStock) {
-      Prompt.showToast({ message: `库存不足，仅剩 ${this.currentStock} 件` });
+      this.prompt.showToast({ message: `库存不足，仅剩 ${this.currentStock} 件` });
       return;
     }
     this.quantity = newQty;
@@ -58,13 +75,19 @@ export struct AddToCartDialog {
 
   private async handleAddToCart(): Promise<void> {
     const product = this.currentProduct;
+    console.log('handleAddToCart - product:', JSON.stringify(product))
+    console.log('handleAddToCart - product.id:', product?.id)
+    console.log('handleAddToCart - goodsId:', this.goodsId)
+    console.log('handleAddToCart - quantity:', this.quantity)
+
     if (!product || !product.id) {
-      Prompt.showToast({ message: '请先选择规格' });
+      console.log('handleAddToCart - 产品无效，显示提示')
+      this.prompt.showToast({ message: '请先选择规格' });
       return;
     }
 
     if (this.goodsId === 0) {
-      Prompt.showToast({ message: '商品信息错误' });
+      this.prompt.showToast({ message: '商品信息错误' });
       return;
     }
 
@@ -77,20 +100,20 @@ export struct AddToCartDialog {
         number: this.quantity
       };
 
-      // 【修复点1】API 返回 data 是 number，所以泛型使用 number
+      console.log('handleAddToCart - 请求参数:', JSON.stringify(params))
       const res = await addToCart(params);
+      console.log('addToCart返回:' + JSON.stringify(res))
 
       if (res.errno === 0) {
-        Prompt.showToast({ message: '已加入购物车' });
-        // 通知父组件刷新购物车数量
+        this.prompt.showToast({ message: '已加入购物车' });
         this.onAddToCart?.(product.id, this.quantity);
         this.dialogController.close();
       } else {
-        Prompt.showToast({ message: res.errmsg || '加入购物车失败' });
+        this.prompt.showToast({ message: res.errmsg || '加入购物车失败' });
       }
     } catch (error) {
       console.error('加入购物车失败:', error);
-      Prompt.showToast({ message: '加入购物车失败，请重试' });
+      this.prompt.showToast({ message: '加入购物车失败，请重试' });
     } finally {
       this.isLoading = false;
     }
@@ -99,12 +122,12 @@ export struct AddToCartDialog {
   private async handleFastBuy(): Promise<void> {
     const product = this.currentProduct;
     if (!product || !product.id) {
-      Prompt.showToast({ message: '请先选择规格' });
+      this.prompt.showToast({ message: '请先选择规格' });
       return;
     }
 
     if (this.goodsId === 0) {
-      Prompt.showToast({ message: '商品信息错误' });
+      this.prompt.showToast({ message: '商品信息错误' });
       return;
     }
 
@@ -115,143 +138,153 @@ export struct AddToCartDialog {
         number: this.quantity
       };
 
-      // 【修复点2】API 返回 data 是 number，所以泛型使用 number
       const res = await fastAddToCart(params);
+      console.log('fastAddToCart返回:' + JSON.stringify(res))
 
       if (res.errno === 0 && res.data) {
-        // 【修复点3】直接使用 res.data，它本身就是 cartId (数字)，不需要 .cartId 属性
         const cartId = res.data;
 
         if (cartId) {
-          // 通知父组件跳转到结算页面
           this.onFastBuy?.(cartId, this.quantity);
           this.dialogController.close();
         } else {
-          Prompt.showToast({ message: '购买失败，请重试' });
+          this.prompt.showToast({ message: '购买失败，请重试' });
         }
       } else {
-        Prompt.showToast({ message: res.errmsg || '购买失败' });
+        this.prompt.showToast({ message: res.errmsg || '购买失败' });
       }
     } catch (error) {
       console.error('立即购买失败:', error);
-      Prompt.showToast({ message: '购买失败，请重试' });
+      this.prompt.showToast({ message: '购买失败，请重试' });
     }
   }
 
   build() {
+
     Column({ space: 0 }) {
       // 标题栏
       Row() {
         Text('选择规格')
-          .fontSize(18)
-          .fontWeight(FontWeight.Medium)
-          .layoutWeight(1)
+          .fontSize(16)
+          .fontWeight(500)
+          .fontColor('#1d1d1f')
+          .lineHeight(22)
+
+        Blank()
 
         Image($r('app.media.right_arrow'))
           .width(24)
           .height(24)
-          .fillColor('#CCCCCC')
+          .fillColor('#86868b')
           .rotate({ angle: 180 })
           .onClick(() => this.dialogController.close())
       }
       .width('100%')
-      .height(56)
+      .height(48)
       .padding({ left: 20, right: 20 })
-      .backgroundColor(Color.White)
 
       Scroll() {
-        Column({ space: 20 }) {
-          // 当前选中
-          Row({ space: 12 }) {
-            Text(this.currentSpecText)
-              .fontSize(15)
-              .fontColor('#ee0a24')
-              .layoutWeight(1)
-              .maxLines(2)
-              .textOverflow({ overflow: TextOverflow.Ellipsis })
-
-            Text(`¥${this.currentPrice}`)
-              .fontSize(22)
-              .fontWeight(FontWeight.Bold)
-              .fontColor('#ee0a24')
-          }
-          .padding({ left: 20, right: 20 })
-
-          Divider().strokeWidth(0.5).color('#F0F0F0')
-
+        Column({ space: 24 }) {
           // 规格选择
           if (this.productList.length > 0) {
-            Column({ space: 12 }) {
-              Text('规格').fontSize(15).fontColor('#666666').padding({ left: 20 })
+            Column({ space: 8 }) {
+              Text('规格')
+                .fontSize(15)
+                .fontWeight(500)
+                .fontColor('#1d1d1f')
+                .lineHeight(20)
 
               Flex({ wrap: FlexWrap.Wrap, justifyContent: FlexAlign.Start }) {
                 ForEach(this.productList, (product: Product, index: number) => {
                   Text(product.specifications?.join(' ') || '')
                     .fontSize(14)
-                    .padding({
-                      left: 16,
-                      right: 16,
-                      top: 10,
-                      bottom: 10
-                    })
-                    .backgroundColor(this.selectedProductIndex === index ? '#ee0a24' : '#F5F7FA')
-                    .fontColor(this.selectedProductIndex === index ? Color.White : '#333333')
-                    .borderRadius(20)
-                    .margin({ right: 10, bottom: 10 })
+                    .fontColor(this.selectedProductIndex === index ? '#ffffff' : '#1d1d1f')
+                    .padding({ left: 16, right: 16, top: 8, bottom: 8 })
+                    .backgroundColor(this.selectedProductIndex === index ? '#0071e3' : '#f5f5f7')
+                    .borderRadius(8)
                     .onClick(() => this.selectProduct(index))
                 })
               }
-              .padding({ left: 20, right: 20 })
             }
+            .alignItems(HorizontalAlign.Start)
           } else {
             Text('暂无规格可选')
               .fontSize(14)
-              .fontColor('#999999')
-              .padding({ left: 20 })
+              .fontColor('#86868b')
+              .lineHeight(20)
           }
 
           // 数量
-          Row({ space: 20 }) {
-            Text('数量').fontSize(15).fontColor('#666666')
-            Blank()
-            Row() {
-              Button('-').width(40).height(40).backgroundColor('#F5F7FA').onClick(() => this.changeQuantity(-1))
-              Text(this.quantity.toString()).width(50).textAlign(TextAlign.Center).fontSize(17)
-              Button('+').width(40).height(40).backgroundColor('#F5F7FA').onClick(() => this.changeQuantity(1))
+          Column({ space: 8 }) {
+            Text('数量')
+              .fontSize(15)
+              .fontWeight(500)
+              .fontColor('#1d1d1f')
+              .lineHeight(20)
+
+            Row({ space: 0 }) {
+              Button('-')
+                .fontSize(20)
+                .fontColor('#ff0c0c1f')
+                .backgroundColor('#f5f5f7')
+                .width(32)
+                .height(32)
+                .borderRadius(8)
+                .onClick(() => this.changeQuantity(-1))
+
+              Text(this.quantity.toString())
+                .fontSize(15)
+                .fontColor('#1d1d1f')
+                .width(40)
+                .textAlign(TextAlign.Center)
+                .height(32)
+
+              Button('+')
+                .fontSize(20)
+                .fontWeight(FontWeight.Bolder)
+                .fontColor('#86868b')
+                .width(32)
+                .height(32)
+                .borderRadius(8)
+                .onClick(() => this.changeQuantity(1))
             }
+            .width(104)
           }
-          .padding({ left: 20, right: 20 })
+          .alignItems(HorizontalAlign.Start)
         }
-        .padding({ top: 16 })
+        .padding(20)
       }
       .layoutWeight(1)
+      .scrollBar(BarState.Off)
 
       // 底部按钮
       Row({ space: 12 }) {
         Button('加入购物车')
+          .fontSize(15)
+          .fontWeight(500)
+          .fontColor('#ffffff')
           .layoutWeight(1)
-          .height(52)
-          .backgroundColor('#FF9800')
-          .fontColor(Color.White)
-          .borderRadius(26)
+          .height(44)
+          .backgroundColor('#0071e3')
+          .borderRadius(10)
           .enabled(!this.isLoading)
           .onClick(() => this.handleAddToCart())
 
         Button('立即购买')
+          .fontSize(15)
+          .fontWeight(500)
+          .fontColor('#ffffff')
           .layoutWeight(1)
-          .height(52)
-          .backgroundColor('#ee0a24')
-          .fontColor(Color.White)
-          .borderRadius(26)
+          .height(44)
+          .backgroundColor('#0071e3')
+          .borderRadius(10)
           .onClick(() => this.handleFastBuy())
       }
-      .padding({
-        left: 20,
-        right: 20,
-        bottom: 24,
-        top: 12
-      })
-      .backgroundColor(Color.White)
+      .padding({ left: 20, right: 20, bottom: 12, top: 12 })
     }
+    .width('100%')
+    .height(440)
+    .backgroundColor(Color.White)
+    .borderRadius(20)
   }
 }

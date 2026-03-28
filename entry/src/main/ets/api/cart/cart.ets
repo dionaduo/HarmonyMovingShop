@@ -40,7 +40,7 @@ export interface addCartParams {
  * @description POST请求 - 将商品加入购物车
  */
 
-export const addToCart = (data: addCartParams): Promise<ApiResponse<number>> => {
+export const addToCart = (data: addCartParams): Promise<ApiResponse<addCartParams>> => {
   return httpRequest({
     url: 'cart/add',
     method: 'POST',

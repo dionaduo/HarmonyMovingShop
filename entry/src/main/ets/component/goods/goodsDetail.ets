@@ -47,20 +47,6 @@ export struct goodsDetail {
       customStyle: true,
       alignment: DialogAlignment.Bottom,
     });
-
-    // 新增：加入购物车规格选择弹窗
-    this.addToCartDialogController = new CustomDialogController({
-      builder: AddToCartDialog({
-        specificationList: this.detail.specificationList || [],
-        productList: this.detail.productList || [],
-        goodsId: this.detail.info?.id || 0,
-        defaultPrice: this.detail.info?.retailPrice || 0,
-        onAddToCart: (productId: number, quantity: number) => this.handleAddToCart(productId, quantity),
-        onFastBuy: (productId: number, quantity: number) => this.handleFastBuy(productId, quantity)
-      }),
-      customStyle: true,
-      alignment: DialogAlignment.Bottom,
-    });
   }
 
   // 加入购物车逻辑
@@ -73,10 +59,11 @@ export struct goodsDetail {
         productId: productId,
         number: quantity
       });
-      console.log(JSON.stringify('加入购物车的返回数据:'+res))
+      console.log('加入购物车的返回数据:' + JSON.stringify(res))
 
       if (res.errno === 0) {
         this.prompt.showToast({ message: '已成功加入购物车', duration: 2000 });
+        this.addToCartDialogController?.close();
       } else {
         this.prompt.showToast({ message: res.errmsg || '加入购物车失败' });
       }
@@ -87,16 +74,53 @@ export struct goodsDetail {
   }
 
   // 立即购买逻辑
-  private handleFastBuy(productId: number, quantity: number): void {
-    // this.prompt.showToast({ message: '立即购买功能开发中...' });
-    // 后续可跳转到结算页：
-    this.goodsRouter.pushUrl({ url: '/view/mine/CheckoutPage' ,params:{
-      productId: productId,
-    }});
+  private async handleFastBuy(productId: number, quantity: number): Promise<void> {
+    if (!this.detail.info?.id) return;
+
+    try {
+      const res = await addToCart({
+        goodsId: this.detail.info.id,
+        productId: productId,
+        number: quantity
+      });
+      console.log('立即购买的返回数据:' + JSON.stringify(res))
+
+      if (res.errno === 0) {
+        this.addToCartDialogController?.close();
+        this.goodsRouter.pushUrl({
+          url: 'view/mine/CheckoutPage',
+          params: {
+            cartId: res.data.goodsId
+          }
+        }).catch((err: string) => console.error('跳转结算页面失败:', err))
+      } else {
+        this.prompt.showToast({ message: res.errmsg || '添加失败' });
+      }
+    } catch (error) {
+      console.error('立即购买失败:', error);
+      this.prompt.showToast({ message: '网络错误，请重试' });
+    }
   }
 
   // 打开加入购物车弹窗
   private openAddToCartDialog(): void {
+    console.log('openAddToCartDialog - productList:', JSON.stringify(this.detail.productList))
+    console.log('openAddToCartDialog - goodsId:', this.detail.info?.id)
+    console.log('openAddToCartDialog - defaultPrice:', this.detail.info?.retailPrice)
+
+    this.addToCartDialogController = new CustomDialogController({
+      builder: AddToCartDialog({
+        specificationList: this.detail.specificationList || [],
+        productList: this.detail.productList || [],
+        goodsId: this.detail.info?.id || 0,
+        defaultPrice: this.detail.info?.retailPrice || 0,
+        onAddToCart: (productId: number, quantity: number) => this.handleAddToCart(productId, quantity),
+        onFastBuy: (productId: number, quantity: number) => this.handleFastBuy(productId, quantity)
+      }),
+      customStyle: true,
+      alignment: DialogAlignment.Bottom,
+    });
+
     this.addToCartDialogController?.open();
   }
 

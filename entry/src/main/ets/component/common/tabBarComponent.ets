@@ -9,11 +9,11 @@ interface ITitle {
 export struct tabBarComponent {
   @Link curTabIndex: number
   @State currTabImage: Resource[] = [
-    $r('app.media.MF'),
-    $r('app.media.MU'),
-    $r('app.media.MC'),
-    $r('app.media.MK'),
-    $r('app.media.wxts')
+    $r('app.media.home'),
+    $r('app.media.category'),
+    $r('app.media.cart'),
+    $r('app.media.mine'),
+    $r('app.media.dog')
   ]
   @State titleList: ITitle[] = [
     { title: '首页', color: Color.Red },
@@ -24,6 +24,10 @@ export struct tabBarComponent {
 
   // 路由守卫回调 - 返回 true 允许切换，false 阻止切换
   onTabChange?: (index: number) => Promise<boolean>;
+
+  aboutToAppear(): void {
+    console.log('tabBarComponent aboutToAppear, curTabIndex:', this.curTabIndex)
+  }
 
   @Builder
   tabItem(index: number, title: string, icon: Resource, selectedIcon: Resource) {
@@ -91,15 +95,24 @@ export struct tabBarComponent {
           }
           .layoutWeight(1)
           .onClick(async () => {
+            console.log('Tab clicked, index:', index, 'current:', this.curTabIndex)
+            console.log('onTabChange exists:', !!this.onTabChange)
             if (index === this.curTabIndex) return
 
             // 如果有守卫回调，先执行守卫逻辑
             if (this.onTabChange) {
-              const canChange = await this.onTabChange(index)
-              if (canChange) {
-                this.curTabIndex = index
+              console.log('Calling onTabChange...')
+              try {
+                const canChange = await this.onTabChange(index)
+                console.log('canChange:', canChange)
+                if (canChange) {
+                  this.curTabIndex = index
+                }
+              } catch (error) {
+                console.error('Error in onTabChange:', error)
               }
             } else {
+              console.log('No onTabChange callback, switching directly')
               this.curTabIndex = index
             }
           })
